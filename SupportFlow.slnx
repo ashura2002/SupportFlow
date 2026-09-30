@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path="ci.yml" />
+  </Folder>
+  <Folder Name="/Core/">
+    <Project Path="Src/Core/Application/Application.csproj" />
+    <Project Path="Src/Core/Domain/Domain.csproj" />
+  </Folder>
+  <Folder Name="/Infrastructure/">
+    <Project Path="Src/Infrastructure/Infrastructure/Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/Presentation/">
+    <Project Path="Src/Presentation/WebApi/WebApi.csproj" />
+  </Folder>
+  <Folder Name="/Test/" />
+  <Folder Name="/Test/Domain/">
+    <Project Path="Test/Domain/User/DomainTest.csproj" Id="addc0aa6-6224-45f0-a34c-6b118898bed5" />
+  </Folder>
+</Solution>
