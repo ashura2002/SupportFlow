@@ -79,8 +79,6 @@ namespace WebApi.Controllers
 
         }
 
-        // my-assigned-tickets
-
         [Authorize(Roles = Role.SupportAgent)]
         [HttpPost("my-assigned-tickets/{ticketId:guid}/start")]
         public async Task<ActionResult> StartTicketProgress([FromRoute] Guid ticketId, CancellationToken ct)
