@@ -13,8 +13,7 @@
   <Folder Name="/Presentation/">
     <Project Path="Src/Presentation/WebApi/WebApi.csproj" />
   </Folder>
-  <Folder Name="/Test/" />
-  <Folder Name="/Test/Domain/">
-    <Project Path="Test/Domain/User/DomainTest.csproj" Id="addc0aa6-6224-45f0-a34c-6b118898bed5" />
+  <Folder Name="/Test/">
+    <Project Path="Test/Domain/DomainTest.csproj" Id="739d66c9-2a48-48c4-91db-8cbe0df731f7" />
   </Folder>
 </Solution>

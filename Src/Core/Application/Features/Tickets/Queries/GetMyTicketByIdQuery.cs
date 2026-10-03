@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Application.Features.Tickets.Queries
 {
-    public sealed record GetMyTicketByIdQuery(Guid TicketId) : IRequest<Result<TicketResponse>>;
+    public sealed record GetMyTicketByIdQuery(Guid TicketId) : IRequest<Result<TicketDetailsResponse>>;
 }

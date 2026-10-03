@@ -13,5 +13,6 @@ namespace Application.ResponseDTO
         string CategoryName,
         string Requester,
         string? AssignedAgent,
-        DateTime? DueAt);
+        DateTime? DueAt,
+        DateTime CreatedAt);
 }

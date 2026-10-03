@@ -101,8 +101,9 @@ namespace Domain.Entities
         {
             if (Status != TicketStatus.InProgress)
                 throw new DomainRuleViolationException("Only in-progress tickets can be resolved.");
-
+            
             Status = TicketStatus.Resolved;
+            AddEvent(new TicketResolvedDomainEvent(RequesterId));
             Touch();
         }
 
