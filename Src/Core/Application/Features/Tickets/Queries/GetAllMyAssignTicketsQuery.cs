@@ -4,5 +4,5 @@ using MediatR;
 
 namespace Application.Features.Tickets.Queries
 {
-    public sealed record GetTicketByIdQuery(Guid TicketId) : IRequest<Result<TicketDetailsResponse>>;
+    public sealed record GetAllMyAssignTicketsQuery(int Page, int PageSize) : IRequest<Result<PaginatedResult<TicketResponse>>>;
 }

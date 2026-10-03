@@ -13,6 +13,7 @@ using Infrastructure.Persistence.Repositories.Tickets;
 using Infrastructure.Persistence.Repositories.Categories;
 using Infrastructure.Events;
 using Infrastructure.Persistence.Repositories.Notifications;
+using Infrastructure.Persistence.Repositories.TicketReplies;
 
 namespace Infrastructure
 {
@@ -31,6 +32,7 @@ namespace Infrastructure
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
             services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
+            services.AddScoped<ITicketReplyWriteRepository, TicketReplyWriteRepository>();
 
 
             services.AddScoped<DatabaseSeeder>();
