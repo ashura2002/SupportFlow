@@ -1,6 +1,7 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories.Categories
 {
@@ -17,9 +18,10 @@ namespace Infrastructure.Persistence.Repositories.Categories
             _context.Categories.Add(category);
         }
 
-        public void Remove(Category category)
+        public async Task<Category?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct)
         {
-            _context.Categories.Remove(category);
+            return await _context.Categories
+                .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
         }
     }
 }

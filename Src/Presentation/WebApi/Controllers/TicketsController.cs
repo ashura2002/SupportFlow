@@ -4,6 +4,7 @@ using Application.ResponseDTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Constant;
 using WebApi.Extensions;
 using WebApi.Request;
@@ -33,6 +34,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
         [HttpGet]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllTickets([FromQuery] PaginatedRequest request, CancellationToken ct)
         {
             var query = new GetAllTicketsQuery(request.Page, request.PageSize);
@@ -42,6 +44,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
         [HttpGet("{ticketId:guid}/details")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<TicketDetailsResponse>> GetTicketById([FromRoute] Guid ticketId, CancellationToken ct)
         {
             var query = new GetTicketByIdQuery(ticketId);
@@ -52,6 +55,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.Requester)]
         [HttpGet("my-tickets")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllMyTickets([FromQuery] PaginatedRequest request, CancellationToken ct)
         {
             var query = new GetAllMyTicketsQuery(request.Page, request.PageSize);
@@ -62,6 +66,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.Requester)]
         [HttpGet("my-tickets{ticketId:guid}/details")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<TicketDetailsResponse>> GetMyTicketById([FromRoute] Guid ticketId, CancellationToken ct)
         {
             var query = new GetMyTicketByIdQuery(ticketId);
@@ -81,6 +86,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.SupportAgent)]
         [HttpGet("my-assign-tickets")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllMyAssignTickets(
             [FromQuery] PaginatedRequest request, CancellationToken ct)
         {

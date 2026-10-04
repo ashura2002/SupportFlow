@@ -6,6 +6,7 @@ namespace Application.Interfaces.Repositories
     public interface ICategoryReadRepository
     {
         Task<CategoryResponse?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct);
-        Task<bool> IsCategoryNameExist(string categoryName, CancellationToken ct);
+        Task<bool> IsCategoryNameExist(string categoryName, Guid? excludeCategoryId, CancellationToken ct);
+        Task<IReadOnlyCollection<CategoryResponse>> GetAllCategoriesAsync(CancellationToken ct);
     }
 }

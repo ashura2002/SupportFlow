@@ -13,7 +13,7 @@ namespace Application.Features.Categories.Commands
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly IUnitOfWork _unitOfWork;
         public CreateCategoryCommandHandler(
-            ICategoryWriteRepository categoryWriteRepository, 
+            ICategoryWriteRepository categoryWriteRepository,
             ICategoryReadRepository categoryReadRepository,
             IUnitOfWork unitOfWork)
         {
@@ -24,7 +24,7 @@ namespace Application.Features.Categories.Commands
 
         public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
         {
-            if (await _categoryReadRepository.IsCategoryNameExist(request.Name, cancellationToken))
+            if (await _categoryReadRepository.IsCategoryNameExist(request.Name, null, cancellationToken))
                 return Result<Guid>.Failure(CategoryErrors.CategoryNameExist);
 
             var category = Category.Create(request.Name, request.Description);

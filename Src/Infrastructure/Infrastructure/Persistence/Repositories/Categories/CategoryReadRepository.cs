@@ -13,6 +13,18 @@ namespace Infrastructure.Persistence.Repositories.Categories
             _context = context;
         }
 
+        public async Task<IReadOnlyCollection<CategoryResponse>> GetAllCategoriesAsync(CancellationToken ct)
+        {
+            return await _context.Categories
+              .AsNoTracking()
+              .OrderByDescending(c => c.CreatedAt)
+              .Select(c => new CategoryResponse(
+                  c.Id, 
+                  c.Name, 
+                  c.Description))
+              .ToListAsync(ct);
+        }
+
         public async Task<CategoryResponse?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct)
         {
             return await _context.Categories
@@ -22,11 +34,12 @@ namespace Infrastructure.Persistence.Repositories.Categories
                 .FirstOrDefaultAsync(ct);
         }
 
-        public async Task<bool> IsCategoryNameExist(string categoryName, CancellationToken ct)
+        public async Task<bool> IsCategoryNameExist(string categoryName, Guid? excludeCategoryId, CancellationToken ct)
         {
             return await _context.Categories
                 .AsNoTracking()
-                .AnyAsync(c => c.Name == categoryName, ct);
+                .AnyAsync(c => c.Name == categoryName &&
+                (excludeCategoryId == null || c.Id != excludeCategoryId), ct);
         }
     }
 }

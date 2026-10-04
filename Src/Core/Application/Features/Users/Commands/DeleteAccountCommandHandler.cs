@@ -7,27 +7,20 @@ using MediatR;
 
 namespace Application.Features.Users.Commands
 {
-    public sealed class UpdatePasswordCommandHandler : IRequestHandler<UpdatePasswordCommand, Result>
+    public sealed class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPasswordService _passwordService;
 
-        public UpdatePasswordCommandHandler(
-            ICurrentUserService currentUserService,
-            IUserWriteRepository userWriteRepository,
-            IUnitOfWork unitOfWork,
-            IPasswordService passwordService)
+        public DeleteAccountCommandHandler(ICurrentUserService currentUserService, IUserWriteRepository userWriteRepository, IUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _userWriteRepository = userWriteRepository;
             _unitOfWork = unitOfWork;
-            _passwordService = passwordService;
         }
 
-
-        public async Task<Result> Handle(UpdatePasswordCommand request, CancellationToken cancellationToken)
+        public async Task<Result> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
 
@@ -35,12 +28,10 @@ namespace Application.Features.Users.Commands
             if (user is null)
                 return Result.Failure(UserErrors.UserNotFound);
 
-            var passwordHash = _passwordService.HashPassword(request.NewPassword);
-            user.UpdatePassword(passwordHash);
+            user.SoftDelete();
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
-
         }
     }
 }
