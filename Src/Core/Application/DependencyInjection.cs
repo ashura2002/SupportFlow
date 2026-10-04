@@ -23,6 +23,7 @@ namespace Application
             //events
             services.AddScoped<IEventHandler<SupportAgentAssignedDomainEvent>, SupportAgentAssignedDomainEventHandler>();
             services.AddScoped<IEventHandler<TicketResolvedDomainEvent>, TicketResolvedDomainEventHandler>();
+            services.AddScoped<IEventHandler<TicketCreatedDomainEvent>, TicketCreatedDomainEventHandler>();
 
             return services;
         }

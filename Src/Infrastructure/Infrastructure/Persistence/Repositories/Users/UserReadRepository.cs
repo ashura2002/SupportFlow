@@ -1,5 +1,6 @@
 ﻿using Application.Interfaces.Repositories;
 using Application.ResponseDTO;
+using Domain.Enums;
 using Domain.ValueObjects;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,19 @@ namespace Infrastructure.Persistence.Repositories.Users
         public UserReadRepository(SupportFlowDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<UserResponse?> GetAdminAsync(CancellationToken ct)
+        {
+            return await _context.Users
+                .AsNoTracking()
+                .Select(u => new UserResponse(
+                    u.Id, 
+                    u.FirstName, 
+                    u.LastName,
+                    u.Email.Value, 
+                    u.Role))
+                .FirstOrDefaultAsync(u => u.Role == Roles.Administrator, ct);
         }
 
         public async Task<PaginatedResult<UserResponse>> GetAllActiveUsersAsync(int page, int pageSize, CancellationToken ct)

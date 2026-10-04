@@ -52,7 +52,7 @@ namespace Domain.Entities
             title = EnsureNotNullAndValid(title);
             description = EnsureNotNullAndValid(description);
 
-            return new Ticket(
+            var ticket = new Ticket(
                 ticketNumber,
                 title,
                 description,
@@ -62,6 +62,8 @@ namespace Domain.Entities
                 requesterId,
                 null,
                 null);
+            ticket.AddEvent(new TicketCreatedDomainEvent(requesterId));
+            return ticket;
         }
 
         public void SoftDelete()
@@ -101,7 +103,7 @@ namespace Domain.Entities
         {
             if (Status != TicketStatus.InProgress)
                 throw new DomainRuleViolationException("Only in-progress tickets can be resolved.");
-            
+
             Status = TicketStatus.Resolved;
             AddEvent(new TicketResolvedDomainEvent(RequesterId));
             Touch();

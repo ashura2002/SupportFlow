@@ -4,6 +4,7 @@ using Application.ResponseDTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using WebApi.Constant;
 using WebApi.Extensions;
 using WebApi.Request;
@@ -49,7 +50,7 @@ namespace WebApi.Controllers
         [HttpPut("password")]
         public async Task<ActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request, CancellationToken ct)
         {
-            var command = new UpdatePasswordCommand(request.Password);
+            var command = new UpdatePasswordCommand(request.NewPassword, request.ConfirmNewPassword);
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
@@ -65,6 +66,7 @@ namespace WebApi.Controllers
 
 
         [HttpGet("me")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponse>> GetMe(CancellationToken ct)
         {
             var query = new GetMeQuery();
@@ -74,6 +76,7 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.Administrator)]
         [HttpGet("active-users")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<UserResponse>>> GetAllActiveUsers(
             [FromQuery] PaginatedRequest request, 
             CancellationToken ct)
@@ -85,10 +88,19 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.Administrator)]
         [HttpGet("{userId:guid}/details")]
+        [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponse>> GetUserById([FromRoute] Guid userId, CancellationToken ct)
         {
             var query = new GetUserByIdQuery(userId);
             var result = await _mediator.Send(query, ct);
+            return this.ToActionResult(result);
+        }
+
+        [HttpDelete("me")]
+        public async Task<ActionResult> DeleteAccount(CancellationToken ct)
+        {
+            var command = new DeleteAccountCommand();
+            var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
     }
