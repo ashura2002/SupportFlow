@@ -1,5 +1,4 @@
-﻿
-using Application.Interfaces.Repositories;
+﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -20,10 +19,11 @@ namespace Infrastructure.Persistence.Repositories.Notifications
             _context.Notifications.Add(notification);
         }
 
-        public async Task<Notification?> GetNotificationByIdAsync(Guid notificationId, CancellationToken ct)
+        public async Task<Notification?> GetNotificationByIdAsync(Guid notificationId, Guid UserId, CancellationToken ct)
         {
             return await _context.Notifications
-                .FirstOrDefaultAsync(n => n.Id == notificationId, ct);
+                .FirstOrDefaultAsync(n => n.Id == notificationId 
+                && n.UserId == UserId, ct);
         }
 
         public void Remove(Notification notification)

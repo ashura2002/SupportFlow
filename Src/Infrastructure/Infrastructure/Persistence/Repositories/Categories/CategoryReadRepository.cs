@@ -15,31 +15,51 @@ namespace Infrastructure.Persistence.Repositories.Categories
 
         public async Task<IReadOnlyCollection<CategoryResponse>> GetAllCategoriesAsync(CancellationToken ct)
         {
-            return await _context.Categories
-              .AsNoTracking()
-              .OrderByDescending(c => c.CreatedAt)
-              .Select(c => new CategoryResponse(
-                  c.Id, 
-                  c.Name, 
-                  c.Description))
-              .ToListAsync(ct);
+            return await _context.Database
+                 .SqlQuery<CategoryResponse>(
+                   $"""
+                    SELECT 
+                        "Id",
+                        "Name",
+                        "Description"
+                    FROM "Categories"
+                    WHERE "DeletedAt" IS NULL
+                   """)
+                .ToListAsync(ct);
         }
 
         public async Task<CategoryResponse?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct)
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .Where(c => c.Id == categoryId)
-                .Select(c => new CategoryResponse(c.Id, c.Name, c.Description))
+            return await _context.Database
+                .SqlQuery<CategoryResponse>(
+                $"""
+                    SELECT 
+                        "Id",
+                        "Name",
+                        "Description"
+                    FROM "Categories"
+                    WHERE "Id" = {categoryId} AND 
+                    "DeletedAt" IS NULL
+                """)
                 .FirstOrDefaultAsync(ct);
         }
 
         public async Task<bool> IsCategoryNameExist(string categoryName, Guid? excludeCategoryId, CancellationToken ct)
         {
-            return await _context.Categories
-                .AsNoTracking()
-                .AnyAsync(c => c.Name == categoryName &&
-                (excludeCategoryId == null || c.Id != excludeCategoryId), ct);
+            return await _context.Database
+                .SqlQuery<bool>(
+                $"""
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM "Categories"
+                        WHERE "Name" = {categoryName}
+                        AND "DeletedAt" IS NULL
+                        AND (
+                        {excludeCategoryId} IS NULL 
+                        OR "Id" != {excludeCategoryId}
+                        )
+                    ) AS "Value"
+                """).SingleAsync(ct);
         }
     }
 }
