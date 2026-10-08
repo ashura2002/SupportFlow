@@ -22,7 +22,7 @@ namespace Application.Events
 
         public Task Handle(SupportAgentAssignedDomainEvent domainEvent, CancellationToken ct)
         {
-            var notification = Notification.Create($"You have been assigned to ticket {domainEvent.TicketId}", domainEvent.AgentId);
+            var notification = Notification.Create($"You have been assigned to a new ticket {domainEvent.TicketId}", domainEvent.AgentId);
 
             _notificationWriteRepository.Add(notification);
 

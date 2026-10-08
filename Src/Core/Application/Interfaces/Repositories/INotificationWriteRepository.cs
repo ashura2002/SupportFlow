@@ -7,6 +7,6 @@ namespace Application.Interfaces.Repositories
     {
         void Add(Notification notification);
         void Remove(Notification notification);
-        Task<Notification?> GetNotificationByIdAsync(Guid notificationId, CancellationToken ct);
+        Task<Notification?> GetNotificationByIdAsync(Guid notificationId, Guid UserId, CancellationToken ct);
     }
 }

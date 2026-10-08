@@ -1,4 +1,4 @@
-﻿using Application.Interfaces.Repositories;
+﻿﻿using Application.Interfaces.Repositories;
 using Application.ResponseDTO;
 using Domain.Enums;
 using Domain.ValueObjects;
@@ -17,58 +17,89 @@ namespace Infrastructure.Persistence.Repositories.Users
 
         public async Task<UserResponse?> GetAdminAsync(CancellationToken ct)
         {
-            return await _context.Users
-                .AsNoTracking()
-                .Select(u => new UserResponse(
-                    u.Id, 
-                    u.FirstName, 
-                    u.LastName,
-                    u.Email.Value, 
-                    u.Role))
-                .FirstOrDefaultAsync(u => u.Role == Roles.Administrator, ct);
+            return await _context.Database
+                .SqlQuery<UserResponse>(
+               $"""
+                SELECT 
+                    "Id",
+                    "FirstName",
+                    "LastName",
+                    "Email",
+                    "Role"
+                FROM "Users"
+                WHERE "Role" = {(int)Roles.Administrator} AND
+                "DeletedAt" IS NULL
+                """)
+                .FirstOrDefaultAsync(ct);
         }
 
         public async Task<PaginatedResult<UserResponse>> GetAllActiveUsersAsync(int page, int pageSize, CancellationToken ct)
         {
-            var query = _context.Users.AsNoTracking();
+            var totalCount = await _context.Database
+                .SqlQuery<int>(
+                $"""
+                    SELECT COUNT(*) AS "Value"
+                    FROM "Users"
+                    WHERE "DeletedAt" IS NULL
+                """)
+                .SingleAsync(ct);
 
-            var totalCount = await query.CountAsync(ct);
-
-            var users = await query
-                .OrderBy(u => u.FirstName)
-                .ThenBy(u => u.LastName)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
-                .Select(u => new UserResponse(u.Id, u.FirstName, u.LastName, u.Email.Value, u.Role))
+            var users = await _context.Database
+                .SqlQuery<UserResponse>(
+                $"""
+                    SELECT 
+                        "Id",
+                        "FirstName",
+                        "LastName",
+                        "Role",
+                        "Email"
+                FROM "Users"
+                WHERE "DeletedAt" IS NULL
+                ORDER BY "FirstName", "LastName"
+                OFFSET {(page - 1) * pageSize}
+                LIMIT {pageSize}
+                """)
                 .ToListAsync(ct);
 
             return new PaginatedResult<UserResponse>(
                 users,
-                page, 
+                page,
                 pageSize, 
                 totalCount);
         }
 
         public async Task<UserResponse?> GetUserByIdAsync(Guid userId, CancellationToken ct)
         {
-            return await _context.Users
-                .AsNoTracking()
-                .Where(u => u.Id == userId)
-                .Select(u => new UserResponse(
-                    u.Id, 
-                    u.FirstName, 
-                    u.LastName, 
-                    u.Email.Value,
-                    u.Role))
+            return await _context.Database
+                .SqlQuery<UserResponse>(
+                $"""
+                 SELECT 
+                    "Id",
+                    "FirstName",
+                    "LastName",
+                    "Email",
+                    "Role"
+                FROM "Users"
+                WHERE "Id" = {userId} AND 
+                "DeletedAt" IS NULL
+                """)
                 .FirstOrDefaultAsync(ct);
         }
 
         public async Task<bool> IsEmailExist(string email, CancellationToken ct)
         {
             var emailVo = Email.Create(email);
-            return await _context.Users
-                .AsNoTracking()
-                .AnyAsync(u => u.Email == emailVo, ct);
+            return await _context.Database
+                .SqlQuery<bool>(
+               $"""
+                SELECT EXISTS (
+                    SELECT 1
+                    FROM "Users"
+                    WHERE "Email" = {emailVo.Value} AND 
+                    "DeletedAt" IS NULL
+                ) AS "Value"
+                """)
+                .SingleAsync(ct);
         }
     }
 }

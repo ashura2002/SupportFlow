@@ -15,12 +15,14 @@ using Infrastructure.Events;
 using Infrastructure.Persistence.Repositories.Notifications;
 using Infrastructure.Persistence.Repositories.TicketReplies;
 
+
 namespace Infrastructure
 {
     public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            // ef core
             services.AddDbContext<SupportFlowDbContext>(option => option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
 
@@ -32,6 +34,7 @@ namespace Infrastructure
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();
             services.AddScoped<ICategoryWriteRepository, CategoryWriteRepository>();
             services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
+            services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
             services.AddScoped<ITicketReplyWriteRepository, TicketReplyWriteRepository>();
 
 

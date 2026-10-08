@@ -1,4 +1,6 @@
 using Application;
+using Domain.Exceptions;
+using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
 using Serilog;
@@ -18,7 +20,44 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 builder.Host.UseSerilog();
 
+// sentry
+builder.WebHost.UseSentry(option =>
+{
+    option.Dsn = builder.Configuration["Sentry:Dsn"];
 
+
+    // exceptions that are expected and should not create Sentry issues
+    var ignoreExpectedExceptions = new[]
+    {
+        typeof(DomainRuleViolationException),
+        typeof(ValidationException)
+    };
+
+
+    // filter captured Sentry events before they are sent
+    option.SetBeforeSend((sentryEvent, hint) =>
+    {
+        var exeption = sentryEvent.Exception;
+
+        if (exeption is not null && ignoreExpectedExceptions.Contains(exeption.GetType()))
+            return null;
+
+
+        return sentryEvent;
+    }); 
+});
+
+// healthcheck for postgresql
+builder.Services
+    .AddHealthChecks()
+    .AddDbContextCheck<SupportFlowDbContext>();
+
+builder.Services.AddCors(option => option.AddPolicy("AllowAll", policy =>
+{
+    policy.AllowAnyOrigin()
+          .AllowAnyHeader()
+          .AllowAnyMethod();
+}));
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -48,12 +87,14 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 
-
 app.UseHttpsRedirection();
+app.UseCors("AllowAll");
 app.UseRateLimiter();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
+app.UseAuthentication();
 app.UseAuthorization();
+app.MapHealthChecks("/db-health");
 app.MapControllers();
 
 app.Run();
