@@ -1,4 +1,5 @@
-﻿using Application.Features.Tickets.Commands;
+﻿using Application.Common.Models;
+using Application.Features.Tickets.Commands;
 using Application.Features.Tickets.Queries;
 using Application.ResponseDTO;
 using MediatR;
@@ -25,7 +26,9 @@ namespace WebApi.Controllers
 
         [Authorize(Roles = Role.Requester)]
         [HttpPost]
-        public async Task<ActionResult<Guid>> CreateTicket([FromBody] CreateTicketRequest request, CancellationToken ct)
+        public async Task<ActionResult<Guid>> CreateTicket(
+            [FromBody] CreateTicketRequest request,
+            CancellationToken ct)
         {
             var command = new CreateTicketCommand(request.Title, request.Description, request.Priority, request.CategoryId);
             var result = await _mediator.Send(command, ct);
@@ -35,7 +38,9 @@ namespace WebApi.Controllers
         [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
         [HttpGet]
         [EnableRateLimiting("GetResourcesPolicy")]
-        public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllTickets([FromQuery] PaginatedRequest request, CancellationToken ct)
+        public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllTickets(
+            [FromQuery] PaginatedRequest request,
+             CancellationToken ct)
         {
             var query = new GetAllTicketsQuery(request.Page, request.PageSize);
             var result = await _mediator.Send(query, ct);
@@ -45,7 +50,8 @@ namespace WebApi.Controllers
         [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
         [HttpGet("{ticketId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
-        public async Task<ActionResult<TicketDetailsResponse>> GetTicketById([FromRoute] Guid ticketId, CancellationToken ct)
+        public async Task<ActionResult<TicketDetailsResponse>> GetTicketById(
+            [FromRoute] Guid ticketId, CancellationToken ct)
         {
             var query = new GetTicketByIdQuery(ticketId);
             var result = await _mediator.Send(query, ct);
@@ -116,10 +122,25 @@ namespace WebApi.Controllers
         }
 
         [Authorize(Roles = $"{Role.Requester},{Role.SupportAgent}")]
+        // required alongside IFormFile JSON body can't carry file uploads,
+        // must be multipart/form-data
+        [Consumes("multipart/form-data")]
         [HttpPost("{ticketId:guid}/reply")]
-        public async Task<ActionResult> ReplyToTicket([FromRoute] Guid ticketId, [FromBody] ReplyToTicketRequest request, CancellationToken ct)
+        public async Task<ActionResult> ReplyToTicket(
+            [FromRoute] Guid ticketId,
+            [FromForm] ReplyToTicketRequest request,
+            CancellationToken ct)
         {
-            var command = new ReplyToTicketCommand(ticketId, request.Message);
+
+            var attachments = (request.Attachments ?? new List<IFormFile>())
+                    .Select(form => new UploadImage(
+                        form.OpenReadStream(),
+                        form.FileName,
+                        form.ContentType,
+                        form.Length))
+                        .ToList();
+
+            var command = new ReplyToTicketCommand(ticketId, request.Message, attachments);
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }

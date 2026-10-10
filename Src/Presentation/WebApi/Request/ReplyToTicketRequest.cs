@@ -1,4 +1,4 @@
 ﻿namespace WebApi.Request
 {
-    public sealed record ReplyToTicketRequest(string Message);
+    public sealed record ReplyToTicketRequest(string Message, IReadOnlyCollection<IFormFile> Attachments);
 }
