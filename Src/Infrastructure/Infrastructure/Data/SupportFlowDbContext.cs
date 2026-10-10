@@ -8,8 +8,9 @@ namespace Infrastructure.Data
         public DbSet<User> Users => Set<User>();
         public DbSet<Category> Categories => Set<Category>();
         public DbSet<Ticket> Tickets => Set<Ticket>();
-        public DbSet<TicketReply> TicketReplies=> Set<TicketReply>();
-        public DbSet<Notification> Notifications=> Set<Notification>();
+        public DbSet<TicketReply> TicketReplies => Set<TicketReply>();
+        public DbSet<TicketAttachmentReply> TicketAttachmentReply => Set<TicketAttachmentReply>();
+        public DbSet<Notification> Notifications => Set<Notification>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

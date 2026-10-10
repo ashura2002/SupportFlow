@@ -7,9 +7,11 @@ namespace Domain.Entities
         public Guid TicketId { get; private set; }
         public Guid AuthorId { get; private set; }
         public string Content { get; private set; }
+        private List<TicketAttachmentReply> _ticketAttachmentReplies = new();
+        public IReadOnlyCollection<TicketAttachmentReply> TicketAttachmentReplies => _ticketAttachmentReplies.AsReadOnly();
 
         private TicketReply(
-            Guid ticketId, 
+            Guid ticketId,
             Guid authorId,
             string content)
         {
@@ -32,9 +34,16 @@ namespace Domain.Entities
             content = content.Trim();
 
             return new TicketReply(
-                ticketId, 
-                authorId, 
+                ticketId,
+                authorId,
                 content);
+        }
+
+        public void AddAttachment(TicketAttachmentReply ticketAttachmentReply)
+        {
+            if (ticketAttachmentReply is null)
+                throw new DomainRuleViolationException("Attachment cannot be null.");
+            _ticketAttachmentReplies.Add(ticketAttachmentReply);
         }
     }
 }

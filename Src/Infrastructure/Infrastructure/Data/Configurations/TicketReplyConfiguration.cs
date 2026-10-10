@@ -20,12 +20,12 @@ namespace Infrastructure.Data.Configurations
             builder.HasOne<Ticket>()
                 .WithMany()
                 .HasForeignKey(ticketReply => ticketReply.TicketId)
-                .OnDelete(DeleteBehavior.Restrict); ;
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne<User>()
                 .WithMany()
                 .HasForeignKey(ticketReply => ticketReply.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict); ;
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -14,6 +14,8 @@ using Infrastructure.Persistence.Repositories.Categories;
 using Infrastructure.Events;
 using Infrastructure.Persistence.Repositories.Notifications;
 using Infrastructure.Persistence.Repositories.TicketReplies;
+using CloudinaryDotNet;
+using Microsoft.Extensions.Options;
 
 
 namespace Infrastructure
@@ -41,18 +43,31 @@ namespace Infrastructure
             services.AddScoped<DatabaseSeeder>();
             services.Configure<SeededUserSettings>(configuration.GetSection(SeededUserSettings.SectionName));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
-
+            services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
 
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddTransient<IPasswordService, BcryptService>();
             services.AddTransient<IJwtService, JsonWebTokenService>();
             services.AddTransient<ITicketNumberGeneratorService, TicketNumberGeneratorService>();
+            services.AddTransient<IImageStorageService, CloudinaryService>();
 
+            // Cloudinary
+            services.AddSingleton(sp =>
+            {
+                var settings = sp.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+
+                var account = new Account(
+                    settings.CloudName,
+                    settings.ApiKey,
+                    settings.ApiSecret);
+
+                return new Cloudinary(account);
+            });
 
             //event
             services.AddScoped<IEventDispatcher, EventDispatcher>();
-           
+
 
             return services;
         }
