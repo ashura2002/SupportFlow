@@ -6,6 +6,7 @@ using Application.Interfaces.Uof;
 using Domain.Entities;
 using Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Tickets.Commands
 {
@@ -15,14 +16,23 @@ namespace Application.Features.Tickets.Commands
         private readonly IUnitOfWork _unitOfWork;
         private readonly ITicketWriteRepository _ticketWriteRepository;
         private readonly ITicketReplyWriteRepository _ticketReplyWriteRepository;
+        private readonly IImageStorageService _imageStorageService;
+        private readonly ILogger<ReplyToTicketCommandHandler> _logger;
 
-        public ReplyToTicketCommandHandler(ICurrentUserService currentUserService, IUnitOfWork unitOfWork, ITicketWriteRepository ticketWriteRepository,
-            ITicketReplyWriteRepository ticketReplyWriteRepository)
+        public ReplyToTicketCommandHandler(
+            ICurrentUserService currentUserService,
+            IUnitOfWork unitOfWork,
+            ITicketWriteRepository ticketWriteRepository,
+            ITicketReplyWriteRepository ticketReplyWriteRepository,
+            IImageStorageService imageStorageService,
+            ILogger<ReplyToTicketCommandHandler> logger)
         {
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
             _ticketReplyWriteRepository = ticketReplyWriteRepository;
+            _imageStorageService = imageStorageService;
+            _logger = logger;
         }
 
 
@@ -31,7 +41,9 @@ namespace Application.Features.Tickets.Commands
             var currentUserId = _currentUserService.UserId;
             var currentUserRole = _currentUserService.Role;
 
-            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(request.TicketId, cancellationToken);
+            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(
+                request.TicketId,
+                cancellationToken);
 
             if (ticket is null)
                 return Result.Failure(TicketErrors.TicketNotFound);
@@ -60,15 +72,70 @@ namespace Application.Features.Tickets.Commands
 
             // if the agent was waiting for the Requester, the requesters reply
             // allows the agent to continue working on the ticket
-            if (currentUserRole == Roles.Requester && 
+            if (currentUserRole == Roles.Requester &&
                 ticket.Status == TicketStatus.WaitingForUser)
             {
                 ticket.ResumeProgress();
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-            return Result.Success();
 
+            // para sa attachment, mga screenshots
+            List<string> uploadedPublicIds = new();
+
+            foreach (var file in request.Attachments)
+            {
+                var uploadResult = await _imageStorageService.UploadAsync(
+                    file.Stream,
+                    file.FileName,
+                    file.ContentType,
+                    cancellationToken);
+
+                uploadedPublicIds.Add(uploadResult.PublicImageId);
+
+                var attachment = TicketAttachmentReply.Create(
+                    ticketReply.Id,
+                    uploadResult.PublicImageUrl,
+                    uploadResult.PublicImageId);
+
+                ticketReply.AddAttachment(attachment);
+            }
+
+            try
+            {
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                           ex,
+                           "Failed to save ticket reply for TicketId {TicketId}. Rolling back {Count} uploaded file(s).",
+                           ticket.Id,
+                           uploadedPublicIds.Count);
+
+                // delete orphaned files left in cloudinary storage
+                foreach (var publicId in uploadedPublicIds)
+                {
+                    await RollbackImageAsync(publicId, ex, CancellationToken.None);
+                }
+                throw;
+            }
+
+            return Result.Success();
+        }
+
+
+        // No external CancellationToken param rollback must always run,
+        // even if the original token is already cancelled.
+        private async Task RollbackImageAsync(string publicImageId, Exception exception, CancellationToken ct)
+        {
+            try
+            {
+                await _imageStorageService.DeleteAsync(publicImageId, ct);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to rollback uploaded image {imageurl}", publicImageId);
+            }
         }
     }
 }

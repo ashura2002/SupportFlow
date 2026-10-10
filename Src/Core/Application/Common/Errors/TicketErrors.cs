@@ -11,6 +11,9 @@ namespace Application.Common.Errors
             "You are not the assigned agent of this ticket.",
             ErrorType.Forbidden);
 
-        public static readonly Error NotTicketRequester = new("Ticket.NotTicketRequester", "You are not the requester of this ticket.", ErrorType.Forbidden);
+        public static readonly Error NotTicketRequester = new(
+            "Ticket.NotTicketRequester", 
+            "You are not the requester of this ticket.",
+             ErrorType.Forbidden);
     }
 }
