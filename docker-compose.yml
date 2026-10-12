@@ -1,0 +1,58 @@
+
+services:
+  db: # PostgreSQL database service
+    image: postgres:17-alpine  # Use PostgreSQL 17 Alpine image
+    container_name: supportflow-db # Set container name
+    restart: unless-stopped # Restart unless manually stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env} # Database name
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env} # Database username
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - supportflow-postgres-data:/var/lib/postgresql/data # Persist database data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]  # Check database 
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api: # ASP.NET Core Web API service
+    build:
+      context: . # Use the current directory as build context
+      dockerfile: Dockerfile # Specify the Dockerfile
+    container_name: supportflow-api 
+    restart: unless-stopped
+    ports:
+      - "8080:8080" # Expose API on port 8080
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production  # Run in production mode
+      ASPNETCORE_URLS: http://+:8080 # Listen on port 8080
+
+      # PostgreSQL connection string
+      ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+
+      Jwt__Key: ${JWT_KEY:?Set JWT_KEY in .env}
+      Jwt__Issuer: SupportFlow
+      Jwt__Audience: SupportFlowUsers
+      Jwt__ExpiryInHours: "24"
+
+      SeededUser__FirstName: ${SEEDED_USER_FIRST_NAME}
+      SeededUser__LastName: ${SEEDED_USER_LAST_NAME}
+      SeededUser__Email: ${SEEDED_USER_EMAIL}
+      SeededUser__Password: ${SEEDED_USER_PASSWORD}
+
+      Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
+      Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
+      Cloudinary__ApiSecret: ${CLOUDINARY_API_SECRET}
+      Cloudinary__Folder: ${CLOUDINARY_FOLDER}
+
+      Sla__ResolutionHours: ${SLA_RESOLUTION_HOURS:-24}
+      
+      SENTRY__DSN: ${SENTRY_DSN}
+
+    depends_on:
+      db:
+        condition: service_healthy # Start API after database is healthy
+
+volumes:
+  supportflow-postgres-data: # Persist PostgreSQL data across restarts
