@@ -170,6 +170,40 @@ namespace Infrastructure.Migrations
                     b.ToTable("TicketAttachmentReply");
                 });
 
+            modelBuilder.Entity("Domain.Entities.TicketAuditEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Action")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("NewValue")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("OldValue")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("TicketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TicketId");
+
+                    b.ToTable("TicketAuditEntries");
+                });
+
             modelBuilder.Entity("Domain.Entities.TicketReply", b =>
                 {
                     b.Property<Guid>("Id")
@@ -282,6 +316,15 @@ namespace Infrastructure.Migrations
                         .WithMany("TicketAttachmentReplies")
                         .HasForeignKey("TicketReplyId")
                         .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.TicketAuditEntry", b =>
+                {
+                    b.HasOne("Domain.Entities.Ticket", null)
+                        .WithMany()
+                        .HasForeignKey("TicketId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

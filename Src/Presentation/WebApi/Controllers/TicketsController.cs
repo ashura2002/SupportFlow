@@ -30,7 +30,11 @@ namespace WebApi.Controllers
             [FromBody] CreateTicketRequest request,
             CancellationToken ct)
         {
-            var command = new CreateTicketCommand(request.Title, request.Description, request.Priority, request.CategoryId);
+            var command = new CreateTicketCommand(
+                request.Title,
+                request.Description,
+                request.Priority,
+                request.CategoryId);
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }

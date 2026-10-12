@@ -11,6 +11,7 @@ namespace Infrastructure.Data
         public DbSet<TicketReply> TicketReplies => Set<TicketReply>();
         public DbSet<TicketAttachmentReply> TicketAttachmentReply => Set<TicketAttachmentReply>();
         public DbSet<Notification> Notifications => Set<Notification>();
+        public DbSet<TicketAuditEntry> TicketAuditEntries => Set<TicketAuditEntry>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

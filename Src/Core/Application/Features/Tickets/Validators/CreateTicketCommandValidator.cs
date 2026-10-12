@@ -15,6 +15,7 @@ namespace Application.Features.Tickets.Validators
                 .NotEmpty();
 
             RuleFor(t => t.Priority)
+                .IsInEnum()
                 .NotEmpty();
 
             RuleFor(t => t.CategoryId)

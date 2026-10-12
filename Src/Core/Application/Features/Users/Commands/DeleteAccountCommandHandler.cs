@@ -28,6 +28,13 @@ namespace Application.Features.Users.Commands
             if (user is null)
                 return Result.Failure(UserErrors.UserNotFound);
 
+            if (!String.Equals(
+                user.Email.Value,
+                request.Email,
+                StringComparison.OrdinalIgnoreCase
+            ))
+                return Result.Failure(UserErrors.EmailNotMatch);
+
             user.SoftDelete();
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

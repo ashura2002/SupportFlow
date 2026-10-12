@@ -39,7 +39,16 @@ namespace Domain.Entities
             firstName = ValidateFirstName(firstName);
             lastName = ValidateLastName(lastName);
             password = ValidatePassword(password);
-            return new User(firstName, lastName, password, email, role);
+
+            if (!Enum.IsDefined(role))
+                throw new DomainRuleViolationException("Invalid user role.");
+
+            return new User(
+                firstName,
+                lastName,
+                password,
+                email,
+                role);
         }
 
 

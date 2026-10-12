@@ -19,7 +19,6 @@ Log.Logger = new LoggerConfiguration()
         rollingInterval: RollingInterval.Day)
     .CreateLogger();
 builder.Host.UseSerilog();
-
 // sentry
 builder.WebHost.UseSentry(option =>
 {
@@ -44,7 +43,7 @@ builder.WebHost.UseSentry(option =>
 
 
         return sentryEvent;
-    }); 
+    });
 });
 
 // healthcheck for postgresql
