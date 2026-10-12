@@ -15,19 +15,22 @@ namespace Application.Features.Tickets.Commands
         private readonly ITicketWriteRepository _ticketWriteRepository;
         private readonly ITicketNumberGeneratorService _ticketNumberGeneratorService;
         private readonly ICategoryReadRepository _categoryReadRepository;
+        private readonly ISlaPolicy _slaPolicy;
 
         public CreateTicketCommandHandler(
             ICurrentUserService currentUserService,
             IUnitOfWork unitOfWork,
             ITicketWriteRepository ticketWriteRepository,
             ITicketNumberGeneratorService ticketNumberGeneratorService,
-            ICategoryReadRepository categoryReadRepository)
+            ICategoryReadRepository categoryReadRepository,
+            ISlaPolicy slaPolicy)
         {
             _currentUserService = currentUserService;
             _unitOfWork = unitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
             _ticketNumberGeneratorService = ticketNumberGeneratorService;
             _categoryReadRepository = categoryReadRepository;
+            _slaPolicy = slaPolicy;
         }
 
         public async Task<Result<Guid>> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
@@ -38,15 +41,16 @@ namespace Application.Features.Tickets.Commands
 
             var currentUserId = _currentUserService.UserId;
             var ticketNumber = await _ticketNumberGeneratorService.GenerateTicketNumber(cancellationToken);
-
+            var dueAt = DateTime.UtcNow.AddHours(_slaPolicy.ResolutionHours);
 
             var ticket = Ticket.Create(
                 ticketNumber,
-                request.Title, 
-                request.Description, 
-                request.Priority, 
-                request.CategoryId, 
-                currentUserId);
+                request.Title,
+                request.Description,
+                request.Priority,
+                request.CategoryId,
+                currentUserId,
+                dueAt);
 
             _ticketWriteRepository.Add(ticket);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

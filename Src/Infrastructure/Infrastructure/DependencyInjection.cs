@@ -16,6 +16,7 @@ using Infrastructure.Persistence.Repositories.Notifications;
 using Infrastructure.Persistence.Repositories.TicketReplies;
 using CloudinaryDotNet;
 using Microsoft.Extensions.Options;
+using Infrastructure.Persistence.Repositories.TicketAuditEntry;
 
 
 namespace Infrastructure
@@ -38,12 +39,22 @@ namespace Infrastructure
             services.AddScoped<INotificationWriteRepository, NotificationWriteRepository>();
             services.AddScoped<INotificationReadRepository, NotificationReadRepository>();
             services.AddScoped<ITicketReplyWriteRepository, TicketReplyWriteRepository>();
+            services.AddScoped<ITicketAuditWriteRepository, TicketAuditWriteRepository>();
+            services.AddScoped<ITicketAuditReadRepository, TicketAuditReadRepository>();
 
 
             services.AddScoped<DatabaseSeeder>();
             services.Configure<SeededUserSettings>(configuration.GetSection(SeededUserSettings.SectionName));
             services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
             services.Configure<CloudinarySettings>(configuration.GetSection(CloudinarySettings.SectionName));
+
+            // sla setting config with validation
+            services.AddOptions<SlaSettings>()
+                    .Bind(configuration.GetSection(SlaSettings.SectionName))
+                    .Validate(setting => setting.ResolutionHours > 0,
+                        "SLA Resolution hours must be greater than zero.")
+                    .ValidateOnStart();
+            services.AddTransient<ISlaPolicy, SlaPolicyService>();
 
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();

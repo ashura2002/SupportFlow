@@ -8,7 +8,6 @@ namespace Domain.UnitTests.Entities;
 
 public class TicketTests
 {
-    // ASSUMPTION: adjust to a value that exists in your Priority enum.
     private const Priority DefaultPriority = Priority.Low;
 
     private static readonly Guid CategoryId = Guid.NewGuid();
@@ -16,23 +15,31 @@ public class TicketTests
     private static readonly Guid AgentId = Guid.NewGuid();
 
     private static Ticket CreateTicket() =>
-        Ticket.Create("TCK-0001", "Login issue", "Cannot login to the portal", DefaultPriority, CategoryId, RequesterId);
+        Ticket.Create(
+            "TCK-0001",
+            "Login issue",
+            "Cannot login to the portal",
+            DefaultPriority,
+            CategoryId,
+            RequesterId,
+            dueAt: null);
 
-    /// <summary>
-    /// Builds a ticket in the desired status using ONLY public behavior (no reflection),
-    /// so the tests also prove the happy-path lifecycle works.
-    /// Open -> Assigned -> InProgress -> (WaitingForUser | Resolved -> Closed -> Reopened)
-    /// </summary>
     private static Ticket CreateTicketIn(TicketStatus status)
     {
         var ticket = CreateTicket();
-        if (status == TicketStatus.Open) return ticket;
+
+        if (status == TicketStatus.Open)
+            return ticket;
 
         ticket.AssignAgent(AgentId);
-        if (status == TicketStatus.Assigned) return ticket;
+
+        if (status == TicketStatus.Assigned)
+            return ticket;
 
         ticket.StartProgress();
-        if (status == TicketStatus.InProgress) return ticket;
+
+        if (status == TicketStatus.InProgress)
+            return ticket;
 
         if (status == TicketStatus.WaitingForUser)
         {
@@ -41,36 +48,64 @@ public class TicketTests
         }
 
         ticket.Resolve();
-        if (status == TicketStatus.Resolved) return ticket;
+
+        if (status == TicketStatus.Resolved)
+            return ticket;
 
         ticket.Close();
-        if (status == TicketStatus.Closed) return ticket;
+
+        if (status == TicketStatus.Closed)
+            return ticket;
 
         ticket.Reopen();
-        if (status == TicketStatus.Reopened) return ticket;
 
-        throw new ArgumentOutOfRangeException(nameof(status), status, "Unsupported status for test setup.");
+        if (status == TicketStatus.Reopened)
+            return ticket;
+
+        throw new ArgumentOutOfRangeException(
+            nameof(status), status, "Unsupported status for test setup.");
     }
 
-    public static IEnumerable<object[]> AllStatusesExcept(params TicketStatus[] allowed) =>
+    public static IEnumerable<object[]> AllStatusesExcept(
+        params TicketStatus[] allowed) =>
         Enum.GetValues<TicketStatus>()
-            .Where(s => !allowed.Contains(s))
-            .Select(s => new object[] { s });
+            .Where(status => !allowed.Contains(status))
+            .Select(status => new object[] { status });
 
-    public static IEnumerable<object[]> NotOpen() => AllStatusesExcept(TicketStatus.Open);
-    public static IEnumerable<object[]> NotAssigned() => AllStatusesExcept(TicketStatus.Assigned);
-    public static IEnumerable<object[]> NotInProgress() => AllStatusesExcept(TicketStatus.InProgress);
-    public static IEnumerable<object[]> NotWaitingForUser() => AllStatusesExcept(TicketStatus.WaitingForUser);
-    public static IEnumerable<object[]> NotResolved() => AllStatusesExcept(TicketStatus.Resolved);
-    public static IEnumerable<object[]> NotClosed() => AllStatusesExcept(TicketStatus.Closed);
-    public static IEnumerable<object[]> NotReopened() => AllStatusesExcept(TicketStatus.Reopened);
+    public static IEnumerable<object[]> NotOpen() =>
+        AllStatusesExcept(TicketStatus.Open);
+
+    public static IEnumerable<object[]> NotAssigned() =>
+        AllStatusesExcept(TicketStatus.Assigned);
+
+    public static IEnumerable<object[]> NotInProgress() =>
+        AllStatusesExcept(TicketStatus.InProgress);
+
+    public static IEnumerable<object[]> NotWaitingForUser() =>
+        AllStatusesExcept(TicketStatus.WaitingForUser);
+
+    public static IEnumerable<object[]> NotResolved() =>
+        AllStatusesExcept(TicketStatus.Resolved);
+
+    public static IEnumerable<object[]> NotClosed() =>
+        AllStatusesExcept(TicketStatus.Closed);
+
+    public static IEnumerable<object[]> NotReopened() =>
+        AllStatusesExcept(TicketStatus.Reopened);
 
     // ---------- Create ----------
 
     [Fact]
     public void Create_WithValidData_ReturnsOpenUnassignedTicket()
     {
-        var ticket = Ticket.Create("TCK-0001", "Login issue", "Cannot login", DefaultPriority, CategoryId, RequesterId);
+        var ticket = Ticket.Create(
+            "TCK-0001",
+            "Login issue",
+            "Cannot login",
+            DefaultPriority,
+            CategoryId,
+            RequesterId,
+            dueAt: null);
 
         Assert.Equal("TCK-0001", ticket.TicketNumber);
         Assert.Equal("Login issue", ticket.Title);
@@ -87,7 +122,14 @@ public class TicketTests
     [Fact]
     public void Create_TrimsTextFields()
     {
-        var ticket = Ticket.Create("  TCK-0001  ", "  Login issue  ", "  Cannot login  ", DefaultPriority, CategoryId, RequesterId);
+        var ticket = Ticket.Create(
+            "  TCK-0001  ",
+            "  Login issue  ",
+            "  Cannot login  ",
+            DefaultPriority,
+            CategoryId,
+            RequesterId,
+            dueAt: null);
 
         Assert.Equal("TCK-0001", ticket.TicketNumber);
         Assert.Equal("Login issue", ticket.Title);
@@ -99,11 +141,18 @@ public class TicketTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("ab")]
-    [InlineData("  ab  ")] // too short after trimming
+    [InlineData("  ab  ")]
     public void Create_WithInvalidTicketNumber_Throws(string? value)
     {
         Assert.Throws<DomainRuleViolationException>(() =>
-            Ticket.Create(value!, "Login issue", "Cannot login", DefaultPriority, CategoryId, RequesterId));
+            Ticket.Create(
+                value!,
+                "Login issue",
+                "Cannot login",
+                DefaultPriority,
+                CategoryId,
+                RequesterId,
+                dueAt: null));
     }
 
     [Theory]
@@ -114,7 +163,14 @@ public class TicketTests
     public void Create_WithInvalidTitle_Throws(string? value)
     {
         Assert.Throws<DomainRuleViolationException>(() =>
-            Ticket.Create("TCK-0001", value!, "Cannot login", DefaultPriority, CategoryId, RequesterId));
+            Ticket.Create(
+                "TCK-0001",
+                value!,
+                "Cannot login",
+                DefaultPriority,
+                CategoryId,
+                RequesterId,
+                dueAt: null));
     }
 
     [Theory]
@@ -125,13 +181,27 @@ public class TicketTests
     public void Create_WithInvalidDescription_Throws(string? value)
     {
         Assert.Throws<DomainRuleViolationException>(() =>
-            Ticket.Create("TCK-0001", "Login issue", value!, DefaultPriority, CategoryId, RequesterId));
+            Ticket.Create(
+                "TCK-0001",
+                "Login issue",
+                value!,
+                DefaultPriority,
+                CategoryId,
+                RequesterId,
+                dueAt: null));
     }
 
     [Fact]
     public void Create_WithTextOfExactlyThreeCharacters_Succeeds()
     {
-        var ticket = Ticket.Create("TCK", "abc", "xyz", DefaultPriority, CategoryId, RequesterId);
+        var ticket = Ticket.Create(
+            "TCK",
+            "abc",
+            "xyz",
+            DefaultPriority,
+            CategoryId,
+            RequesterId,
+            dueAt: null);
 
         Assert.Equal("abc", ticket.Title);
     }
@@ -156,8 +226,8 @@ public class TicketTests
 
         ticket.AssignAgent(AgentId);
 
-        // ASSUMPTION: your Aggregate exposes raised events as `DomainEvents`. Rename if different.
-        Assert.Single(ticket.DomainEvents.OfType<SupportAgentAssignedDomainEvent>());
+        Assert.Single(
+            ticket.DomainEvents.OfType<SupportAgentAssignedDomainEvent>());
     }
 
     [Fact]
@@ -165,7 +235,9 @@ public class TicketTests
     {
         var ticket = CreateTicket();
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.AssignAgent(Guid.Empty));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.AssignAgent(Guid.Empty));
+
         Assert.Null(ticket.AssignedAgentId);
         Assert.Equal(TicketStatus.Open, ticket.Status);
     }
@@ -176,18 +248,22 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.AssignAgent(Guid.NewGuid()));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.AssignAgent(Guid.NewGuid()));
     }
 
     [Fact]
-    public void AssignAgent_WhenNotAssignedAgain_DoesNotRaiseEventOnFailure()
+    public void AssignAgent_WhenAlreadyAssigned_DoesNotRaiseAnotherEvent()
     {
         var ticket = CreateTicket();
         ticket.AssignAgent(AgentId);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.AssignAgent(Guid.NewGuid()));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.AssignAgent(Guid.NewGuid()));
 
-        Assert.Single(ticket.DomainEvents.OfType<SupportAgentAssignedDomainEvent>());
+        Assert.Single(
+            ticket.DomainEvents.OfType<SupportAgentAssignedDomainEvent>());
+
         Assert.Equal(AgentId, ticket.AssignedAgentId);
     }
 
@@ -209,7 +285,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.StartProgress());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.StartProgress());
     }
 
     // ---------- WaitForUser / ResumeProgress ----------
@@ -230,7 +307,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.WaitForUser());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.WaitForUser());
     }
 
     [Fact]
@@ -245,11 +323,13 @@ public class TicketTests
 
     [Theory]
     [MemberData(nameof(NotWaitingForUser))]
-    public void ResumeProgress_WhenNotWaitingForUser_Throws(TicketStatus status)
+    public void ResumeProgress_WhenNotWaitingForUser_Throws(
+        TicketStatus status)
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.ResumeProgress());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.ResumeProgress());
     }
 
     // ---------- Resolve ----------
@@ -270,7 +350,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.Resolve());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.Resolve());
     }
 
     // ---------- Close ----------
@@ -291,7 +372,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.Close());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.Close());
     }
 
     // ---------- Reopen / StartProgressAfterReopen ----------
@@ -312,7 +394,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.Reopen());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.Reopen());
     }
 
     [Fact]
@@ -327,11 +410,13 @@ public class TicketTests
 
     [Theory]
     [MemberData(nameof(NotReopened))]
-    public void StartProgressAfterReopen_WhenNotReopened_Throws(TicketStatus status)
+    public void StartProgressAfterReopen_WhenNotReopened_Throws(
+        TicketStatus status)
     {
         var ticket = CreateTicketIn(status);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.StartProgressAfterReopen());
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.StartProgressAfterReopen());
     }
 
     // ---------- Full lifecycle ----------
@@ -369,11 +454,14 @@ public class TicketTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("ab")]
-    public void UpdateTitle_WithInvalidTitle_ThrowsAndKeepsOldValue(string value)
+    public void UpdateTitle_WithInvalidTitle_ThrowsAndKeepsOldValue(
+        string value)
     {
         var ticket = CreateTicket();
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.UpdateTitle(value));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.UpdateTitle(value));
+
         Assert.Equal("Login issue", ticket.Title);
     }
 
@@ -382,7 +470,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(TicketStatus.Closed);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.UpdateTitle("New title"));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.UpdateTitle("New title"));
     }
 
     [Theory]
@@ -417,11 +506,14 @@ public class TicketTests
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("ab")]
-    public void UpdateDescription_WithInvalidDescription_ThrowsAndKeepsOldValue(string value)
+    public void UpdateDescription_WithInvalidDescription_ThrowsAndKeepsOldValue(
+        string value)
     {
         var ticket = CreateTicket();
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.UpdateDescription(value));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.UpdateDescription(value));
+
         Assert.Equal("Cannot login to the portal", ticket.Description);
     }
 
@@ -430,7 +522,8 @@ public class TicketTests
     {
         var ticket = CreateTicketIn(TicketStatus.Closed);
 
-        Assert.Throws<DomainRuleViolationException>(() => ticket.UpdateDescription("New description"));
+        Assert.Throws<DomainRuleViolationException>(
+            () => ticket.UpdateDescription("New description"));
     }
 
     // ---------- SoftDelete ----------
@@ -444,7 +537,10 @@ public class TicketTests
         ticket.SoftDelete();
 
         Assert.NotNull(ticket.DeletedAt);
-        Assert.InRange(ticket.DeletedAt!.Value, before, DateTime.UtcNow);
+        Assert.InRange(
+            ticket.DeletedAt!.Value,
+            before,
+            DateTime.UtcNow);
     }
 
     [Fact]
@@ -452,6 +548,7 @@ public class TicketTests
     {
         var ticket = CreateTicket();
         ticket.SoftDelete();
+
         var firstDeletedAt = ticket.DeletedAt;
 
         ticket.SoftDelete();

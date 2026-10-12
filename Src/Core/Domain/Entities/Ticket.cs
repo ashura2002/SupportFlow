@@ -45,12 +45,15 @@ namespace Domain.Entities
            string description,
            Priority priority,
            Guid categoryId,
-           Guid requesterId)
+           Guid requesterId,
+           DateTime? dueAt)
         {
-
             ticketNumber = EnsureNotNullAndValid(ticketNumber);
             title = EnsureNotNullAndValid(title);
             description = EnsureNotNullAndValid(description);
+
+            if (!Enum.IsDefined(priority))
+                throw new DomainRuleViolationException("Invalid priority value.");
 
             var ticket = new Ticket(
                 ticketNumber,
@@ -61,7 +64,7 @@ namespace Domain.Entities
                 categoryId,
                 requesterId,
                 null,
-                null);
+                dueAt);
             ticket.AddEvent(new TicketCreatedDomainEvent(requesterId));
             return ticket;
         }
@@ -79,6 +82,10 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Only reopened tickets can resume progress.");
 
             Status = TicketStatus.InProgress;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.Reopened,
+                TicketStatus.InProgress));
             Touch();
         }
 
@@ -87,6 +94,10 @@ namespace Domain.Entities
             if (Status != TicketStatus.Closed)
                 throw new DomainRuleViolationException("Only closed tickets can be reopened.");
             Status = TicketStatus.Reopened;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.Closed,
+                TicketStatus.Reopened));
             Touch();
         }
 
@@ -96,6 +107,10 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Only resolved tickets can be closed.");
 
             Status = TicketStatus.Closed;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.Resolved,
+                TicketStatus.Closed));
             Touch();
         }
 
@@ -106,6 +121,10 @@ namespace Domain.Entities
 
             Status = TicketStatus.Resolved;
             AddEvent(new TicketResolvedDomainEvent(RequesterId));
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.InProgress,
+                TicketStatus.Resolved));
             Touch();
         }
 
@@ -115,6 +134,10 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Only tickets in WaitingForUser status can resume progress.");
 
             Status = TicketStatus.InProgress;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.WaitingForUser,
+                TicketStatus.InProgress));
             Touch();
         }
 
@@ -124,6 +147,10 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Only in-progress tickets can be moved to waiting for user.");
 
             Status = TicketStatus.WaitingForUser;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.InProgress,
+                TicketStatus.WaitingForUser));
             Touch();
         }
 
@@ -136,6 +163,10 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Ticket must have an assigned agent.");
 
             Status = TicketStatus.InProgress;
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.Assigned,
+                TicketStatus.InProgress));
             Touch();
         }
 
@@ -154,6 +185,10 @@ namespace Domain.Entities
             AssignedAgentId = agentId;
             Status = TicketStatus.Assigned;
             AddEvent(new SupportAgentAssignedDomainEvent(agentId, Id));
+            AddEvent(new TicketStatusChangedDomainEvent(
+                Id,
+                TicketStatus.Open,
+                TicketStatus.Assigned));
             Touch();
         }
 

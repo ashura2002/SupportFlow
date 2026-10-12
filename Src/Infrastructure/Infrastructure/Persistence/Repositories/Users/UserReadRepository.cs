@@ -64,8 +64,28 @@ namespace Infrastructure.Persistence.Repositories.Users
             return new PaginatedResult<UserResponse>(
                 users,
                 page,
-                pageSize, 
+                pageSize,
                 totalCount);
+        }
+
+        public async Task<IReadOnlyCollection<DeletedUserResponse>> GetAllDeletedUsersAsync(CancellationToken ct)
+        {
+            return await _context.Database
+                .SqlQuery<DeletedUserResponse>(
+                    $"""
+                        SELECT 
+                            u."Id",
+                            u."FirstName",
+                            u."LastName",
+                            u."Email",
+                            u."Role",
+                            u."DeletedAt"
+                        FROM "Users" AS u
+                        WHERE u."DeletedAt" IS NOT NULL
+                        ORDER BY u."CreatedAt" ASC
+                    """
+                )
+                .ToListAsync(ct);
         }
 
         public async Task<UserResponse?> GetUserByIdAsync(Guid userId, CancellationToken ct)

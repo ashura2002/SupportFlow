@@ -19,5 +19,10 @@ namespace Application.Common.Errors
               "User.RoleNotAgent",
               "User is not a support agent.",
               ErrorType.BadRequest);
+
+        public static readonly Error EmailNotMatch = new(
+            "User.EmailNotMatch",
+            "Email does not match.",
+            ErrorType.BadRequest);
     }
 }

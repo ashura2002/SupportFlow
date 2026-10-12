@@ -7,6 +7,7 @@ namespace Application.Interfaces.Repositories
         Task<bool> IsEmailExist(string email, CancellationToken ct);
         Task<UserResponse?> GetUserByIdAsync(Guid userId, CancellationToken ct);
         Task<PaginatedResult<UserResponse>> GetAllActiveUsersAsync(int page, int pageSize, CancellationToken ct);
+        Task<IReadOnlyCollection<DeletedUserResponse>> GetAllDeletedUsersAsync(CancellationToken ct);
         Task<UserResponse?> GetAdminAsync(CancellationToken ct);
     }
 }

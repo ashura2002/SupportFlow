@@ -10,7 +10,7 @@ namespace Application.Common.Results
         {
             Value = value;
         }
-     
+
 
         public static Result<T> Success(T value)
         {

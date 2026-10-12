@@ -55,7 +55,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-   
+
         [HttpPatch]
         public async Task<ActionResult> UpdateDetails([FromBody] UpdateDetailsRequest request, CancellationToken ct)
         {
@@ -78,13 +78,24 @@ namespace WebApi.Controllers
         [HttpGet("active-users")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<UserResponse>>> GetAllActiveUsers(
-            [FromQuery] PaginatedRequest request, 
+            [FromQuery] PaginatedRequest request,
             CancellationToken ct)
         {
             var query = new GetAllActiveUsersQuery(request.Page, request.PageSize);
             var result = await _mediator.Send(query, ct);
             return this.ToActionResult(result);
         }
+
+        [Authorize(Roles = Role.Administrator)]
+        [HttpGet("deleted-users")]
+        [EnableRateLimiting("GetResourcesPolicy")]
+        public async Task<ActionResult<IReadOnlyCollection<DeletedUserResponse>>> GetAllDeletedUsers(CancellationToken ct)
+        {
+            var query = new GetAllDeletedUsersQuery();
+            var result = await _mediator.Send(query, ct);
+            return this.ToActionResult(result);
+        }
+
 
         [Authorize(Roles = Role.Administrator)]
         [HttpGet("{userId:guid}/details")]
@@ -97,9 +108,9 @@ namespace WebApi.Controllers
         }
 
         [HttpDelete("me")]
-        public async Task<ActionResult> DeleteAccount(CancellationToken ct)
+        public async Task<ActionResult> DeleteAccount([FromBody] DeleteAccountCommand request, CancellationToken ct)
         {
-            var command = new DeleteAccountCommand();
+            var command = new DeleteAccountCommand(request.Email);
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
