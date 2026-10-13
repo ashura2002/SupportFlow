@@ -1,4 +1,3 @@
-using Application.Common.Errors;
 using Application.Common.Results;
 using Application.Interfaces.Repositories;
 using Application.ResponseDTO;
