@@ -8,7 +8,6 @@ A backend REST API for help desk and ticket management built with ASP.NET Core W
 - **Database:** PostgreSQL
 - **Architecture:** Clean Architecture, Domain-Driven Design (DDD), Repository Pattern, Result Pattern, Unit of Work
 - **Authentication:** JWT, Role-Based Authorization
-- **Email:** Resend — password recovery and email delivery
 - **File Storage:** Cloudinary — cloud-based file and image storage integration
 - **Monitoring:** Sentry — error monitoring and exception tracking
 - **Logging:** Serilog — structured application and HTTP request logging
