@@ -11,6 +11,7 @@
     <Project Path="Src/Infrastructure/Infrastructure/Infrastructure.csproj" />
   </Folder>
   <Folder Name="/Presentation/">
+    <Project Path="Src/Presentation/Gateway/Gateway.csproj" Id="798c2f00-395d-48de-ac92-326ab5be0616" />
     <Project Path="Src/Presentation/WebApi/WebApi.csproj" />
   </Folder>
   <Folder Name="/Test/">

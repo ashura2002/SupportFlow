@@ -4,6 +4,7 @@ using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Serilog;
 using WebAPI;
 using WebAPI.Middlewares;
@@ -79,13 +80,7 @@ var app = builder.Build();
 // seeded data
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-
-    var dbContext = services.GetRequiredService<SupportFlowDbContext>();
-
-    await dbContext.Database.MigrateAsync();
-
-    var seeder = services.GetRequiredService<DatabaseSeeder>();
+    var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     await seeder.SeedAdminUser();
 }
 

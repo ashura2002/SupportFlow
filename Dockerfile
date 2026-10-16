@@ -28,7 +28,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
 # Install GSSAPI library and remove package lists to reduce image size
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \ 
+    && apt-get install -y --no-install-recommends libgssapi-krb5-2 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
