@@ -16,15 +16,12 @@ services:
       timeout: 5s
       retries: 10
 
-  api: # ASP.NET Core Web API service
+  api-1: # ASP.NET Core Web API service
     build:
       context: . # Use the current directory as build context
       dockerfile: Dockerfile # Specify the Dockerfile
-    container_name: supportflow-api 
     restart: unless-stopped
-    ports:
-      - "8080:8080" # Expose API on port 8080
-    environment:
+    environment: &api-development
       ASPNETCORE_ENVIRONMENT: Production  # Run in production mode
       ASPNETCORE_URLS: http://+:8080 # Listen on port 8080
 
@@ -49,10 +46,36 @@ services:
       Sla__ResolutionHours: ${SLA_RESOLUTION_HOURS:-24}
       
       SENTRY__DSN: ${SENTRY_DSN}
-
     depends_on:
       db:
-        condition: service_healthy # Start API after database is healthy
+        condition: service_healthy  
+
+  api-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment: *api-development
+    depends_on:
+      db:
+        condition: service_healthy
+
+
+  gateway:
+    build:
+      context: .
+      dockerfile: Src/Presentation/Gateway/Dockerfile
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "8080:8080"
+    depends_on:
+        api-1:
+          condition: service_started
+        api-2:
+          condition: service_started
 
 volumes:
   supportflow-postgres-data: # Persist PostgreSQL data across restarts
