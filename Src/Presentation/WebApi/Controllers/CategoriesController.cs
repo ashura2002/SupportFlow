@@ -22,7 +22,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = Role.Administrator)]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateCategory([FromBody] CreateCategoryRequest request, CancellationToken ct)
         {
@@ -33,7 +33,7 @@ namespace WebApi.Controllers
 
 
 
-        [Authorize(Roles = Role.Administrator)]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPatch("{categoryId:guid}")]
         public async Task<ActionResult> UpdateCategory(
             [FromRoute] Guid categoryId,
@@ -46,7 +46,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Administrator)]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpDelete("{categoryId:guid}")]
         public async Task<ActionResult> DeleteCategory(
             [FromRoute] Guid categoryId,
@@ -58,12 +58,14 @@ namespace WebApi.Controllers
         }
 
 
+        [Authorize(Roles = $"{TenantRoles.Requester},{TenantRoles.SupportAgent},{TenantRoles.TenantAdmin}")]
         [HttpGet]
         [EnableRateLimiting("GetResourcesPolicy")]
-        public async Task<ActionResult<IReadOnlyCollection<CategoryResponse>>> GetAllCategories(
+        public async Task<ActionResult<PaginatedResult<CategoryResponse>>> GetAllCategories(
+            [FromQuery] PaginatedRequest request,
             CancellationToken ct)
         {
-            var command = new GetAllCategoriesQuery();
+            var command = new GetAllCategoriesQuery(request.Page, request.PageSize);
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }

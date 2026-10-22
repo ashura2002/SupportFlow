@@ -4,5 +4,7 @@ using MediatR;
 
 namespace Application.Features.Auth.Command
 {
-    public sealed record LoginCommand(string Email, string Password) : IRequest<Result<AuthResponse>>;
+    public sealed record LoginCommand(
+        string Email,
+        string Password) : IRequest<Result<AuthResponse>>;
 }

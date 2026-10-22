@@ -6,5 +6,8 @@ namespace Application.Interfaces.Repositories;
 
 public interface ITicketAuditReadRepository
 {
-    Task<IReadOnlyList<TicketAuditResponse>> GetTicketAuditByIdAsync(Guid  ticketId, CancellationToken ct);
+    Task<IReadOnlyList<TicketAuditResponse>> GetTicketAuditByIdAsync(
+        Guid  ticketId,
+        Guid tenantId,
+        CancellationToken ct);
 }

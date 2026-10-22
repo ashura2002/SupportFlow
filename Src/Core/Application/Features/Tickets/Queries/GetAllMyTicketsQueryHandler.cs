@@ -19,8 +19,12 @@ namespace Application.Features.Tickets.Queries
 
         public async Task<Result<PaginatedResult<TicketResponse>>> Handle(GetAllMyTicketsQuery request, CancellationToken cancellationToken)
         {
-            var currentUserId = _currentUserService.UserId;
-            var tickets = await _ticketReadRepository.GetAllMyTicketsAsync(currentUserId, request.Page, request.PageSize, cancellationToken);
+            var tickets = await _ticketReadRepository.GetAllMyTicketsAsync(
+                _currentUserService.UserId, 
+                request.Page, 
+                request.PageSize, 
+                cancellationToken);
+
             return Result<PaginatedResult<TicketResponse>>.Success(tickets);
         }
     }

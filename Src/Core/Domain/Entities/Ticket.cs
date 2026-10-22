@@ -6,6 +6,7 @@ namespace Domain.Entities
 {
     public class Ticket : Aggregate
     {
+        public Guid TenantId { get; private set; }
         public string TicketNumber { get; private set; }
         public string Title { get; private set; }
         public string Description { get; private set; }
@@ -17,7 +18,10 @@ namespace Domain.Entities
         public DateTime? DueAt { get; private set; }
         public DateTime? DeletedAt { get; private set; }
 
+
+
         private Ticket(
+            Guid tenantId,
             string ticketNumber,
             string title,
             string description,
@@ -28,6 +32,7 @@ namespace Domain.Entities
             Guid? assignedAgentId,
             DateTime? dueAt)
         {
+            TenantId = tenantId;
             TicketNumber = ticketNumber;
             Title = title;
             Description = description;
@@ -40,6 +45,7 @@ namespace Domain.Entities
         }
 
         public static Ticket Create(
+           Guid tenantId,
            string ticketNumber,
            string title,
            string description,
@@ -56,6 +62,7 @@ namespace Domain.Entities
                 throw new DomainRuleViolationException("Invalid priority value.");
 
             var ticket = new Ticket(
+                tenantId,
                 ticketNumber,
                 title,
                 description,
@@ -65,7 +72,7 @@ namespace Domain.Entities
                 requesterId,
                 null,
                 dueAt);
-            ticket.AddEvent(new TicketCreatedDomainEvent(requesterId));
+            ticket.AddEvent(new TicketCreatedDomainEvent(requesterId, tenantId));
             return ticket;
         }
 

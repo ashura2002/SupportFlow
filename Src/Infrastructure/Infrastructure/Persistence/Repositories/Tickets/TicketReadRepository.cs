@@ -129,7 +129,11 @@ namespace Infrastructure.Persistence.Repositories.Tickets
         }
 
 
-        public async Task<PaginatedResult<TicketResponse>> GetAllTicketsAsync(int page, int pageSize, CancellationToken ct)
+        public async Task<PaginatedResult<TicketResponse>> GetAllTicketsAsync(
+            Guid tenantId,
+            int page, 
+            int pageSize, 
+            CancellationToken ct)
         {
             var totalCount = await _context.Database
                 .SqlQuery<int>(
@@ -137,6 +141,7 @@ namespace Infrastructure.Persistence.Repositories.Tickets
                     SELECT COUNT (*) AS "Value"
                     FROM "Tickets"
                     WHERE "DeletedAt" IS NULL
+                    AND "TenantId" = {tenantId}
                 """)
                 .SingleAsync(ct);
 
@@ -170,6 +175,7 @@ namespace Infrastructure.Persistence.Repositories.Tickets
                     ON t."AssignedAgentId" = a."Id"
 
                     WHERE t."DeletedAt" IS NULL
+                    AND t."TenantId" = {tenantId}
                     ORDER BY t."CreatedAt" DESC
                     OFFSET {(page - 1) * pageSize}
                     LIMIT {pageSize}
@@ -286,7 +292,10 @@ namespace Infrastructure.Persistence.Repositories.Tickets
 
 
         // for supportagent and admin
-        public async Task<TicketDetailsResponse?> GetTicketByIdAsync(Guid ticketId, CancellationToken ct)
+        public async Task<TicketDetailsResponse?> GetTicketByIdAsync(
+            Guid ticketId, 
+            Guid tenantId,
+            CancellationToken ct)
         {
             var ticket = await _context.Database
                 .SqlQuery<TicketResponse>(
@@ -314,6 +323,7 @@ namespace Infrastructure.Persistence.Repositories.Tickets
                         LEFT JOIN "Users" AS a
                         ON t."AssignedAgentId" = a."Id"
                         WHERE t."Id" = {ticketId} 
+                        AND t."TenantId" = {tenantId}
                         AND t."DeletedAt" IS NULL
                     """
                 )

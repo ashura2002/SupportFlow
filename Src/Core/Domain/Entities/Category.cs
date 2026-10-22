@@ -4,21 +4,33 @@ namespace Domain.Entities
 {
     public class Category : BaseEntity
     {
+        public Guid TenantId { get; private set; }
         public string Name { get; private set; }
         public string? Description { get; private set; }
         public DateTime? DeletedAt { get; private set; }
 
-        private Category(string name, string? description)
+
+        private Category(
+            Guid tenantId,
+            string name,
+            string? description)
         {
+            TenantId = tenantId;
             Name = name;
             Description = description;
         }
 
-        public static Category Create(string name, string? description)
+        public static Category Create(
+            Guid tenantId,
+            string name,
+            string? description)
         {
             name = ValidateCategoryName(name);
             description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
-            return new Category(name, description);
+            return new Category(
+                tenantId,
+                name,
+                description);
         }
 
         public void SoftDelete()

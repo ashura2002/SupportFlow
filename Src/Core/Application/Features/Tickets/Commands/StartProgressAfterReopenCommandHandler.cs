@@ -26,12 +26,15 @@ namespace Application.Features.Tickets.Commands
 
         public async Task<Result> Handle(StartProgressAfterReopenCommand request, CancellationToken cancellationToken)
         {
-            var currentUserId = _currentUserService.UserId;
-            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(request.TicketId, cancellationToken);
+            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(
+                request.TicketId,
+                _currentUserService.UserId,
+                cancellationToken);
+
             if (ticket is null)
                 return Result.Failure(TicketErrors.TicketNotFound);
 
-            if (ticket.AssignedAgentId != currentUserId)
+            if (ticket.AssignedAgentId != _currentUserService.UserId)
                 return Result.Failure(TicketErrors.NotAssignedAgent);
             ticket.StartProgressAfterReopen();
 

@@ -24,7 +24,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Requester)]
+        [Authorize(Roles = TenantRoles.Requester)]
         [HttpPost]
         public async Task<ActionResult<Guid>> CreateTicket(
             [FromBody] CreateTicketRequest request,
@@ -39,7 +39,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
+        [Authorize(Roles = $"{TenantRoles.TenantAdmin},{TenantRoles.SupportAgent}")]
         [HttpGet]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllTickets(
@@ -51,7 +51,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = $"{Role.Administrator},{Role.SupportAgent}")]
+        [Authorize(Roles = $"{TenantRoles.TenantAdmin},{TenantRoles.SupportAgent}")]
         [HttpGet("{ticketId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<TicketDetailsResponse>> GetTicketById(
@@ -63,7 +63,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Requester)]
+        [Authorize(Roles = TenantRoles.Requester)]
         [HttpGet("my-tickets")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllMyTickets([FromQuery] PaginatedRequest request, CancellationToken ct)
@@ -74,7 +74,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Requester)]
+        [Authorize(Roles = TenantRoles.Requester)]
         [HttpGet("my-tickets{ticketId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<TicketDetailsResponse>> GetMyTicketById([FromRoute] Guid ticketId, CancellationToken ct)
@@ -84,8 +84,8 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.Administrator)]
-        [HttpPut("assign-agent/{ticketId:guid}")]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
+        [HttpPost("assign-agent/{ticketId:guid}")]
         public async Task<ActionResult> AssignAgent([FromRoute] Guid ticketId, [FromBody] AssignAgentRequest request, CancellationToken ct)
         {
             var command = new AssignAgentCommand(request.AgentId, ticketId);
@@ -94,7 +94,7 @@ namespace WebApi.Controllers
 
         }
 
-        [Authorize(Roles = Role.SupportAgent)]
+        [Authorize(Roles = TenantRoles.SupportAgent)]
         [HttpGet("my-assign-tickets")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<TicketResponse>>> GetAllMyAssignTickets(
@@ -106,7 +106,7 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.SupportAgent)]
+        [Authorize(Roles = TenantRoles.SupportAgent)]
         [HttpPost("{ticketId:guid}/start")]
         public async Task<ActionResult> StartTicketProgress([FromRoute] Guid ticketId, CancellationToken ct)
         {
@@ -115,7 +115,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.SupportAgent)]
+        [Authorize(Roles = TenantRoles.SupportAgent)]
         [HttpPost("{ticketId:guid}/wait-for-user")]
         public async Task<ActionResult> WaitForUser([FromRoute] Guid ticketId, CancellationToken ct)
         {
@@ -125,7 +125,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = $"{Role.Requester},{Role.SupportAgent}")]
+        [Authorize(Roles = $"{TenantRoles.Requester},{TenantRoles.SupportAgent}")]
         // required alongside IFormFile JSON body can't carry file uploads,
         // must be multipart/form-data
         [Consumes("multipart/form-data")]
@@ -149,7 +149,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.SupportAgent)]
+        [Authorize(Roles = TenantRoles.SupportAgent)]
         [HttpPost("{ticketId:guid}/resolve")]
         public async Task<ActionResult> ResolveTicket([FromRoute] Guid ticketId, CancellationToken ct)
         {
@@ -158,7 +158,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.Requester)]
+        [Authorize(Roles = TenantRoles.Requester)]
         [HttpPost("{ticketId:guid}/close")]
         public async Task<ActionResult> CloseTicket([FromRoute] Guid ticketId, CancellationToken ct)
         {
@@ -167,7 +167,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.Requester)]
+        [Authorize(Roles = TenantRoles.Requester)]
         [HttpPost("{ticketId:guid}/reopen")]
         public async Task<ActionResult> ReopenTicket([FromRoute] Guid ticketId, CancellationToken ct)
         {
@@ -176,7 +176,7 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.SupportAgent)]
+        [Authorize(Roles = TenantRoles.SupportAgent)]
         [HttpPost("{ticketId:guid}/start-progress-after-reopen")]
         public async Task<ActionResult> StartProgressAfterReopen([FromRoute] Guid ticketId, CancellationToken ct)
         {

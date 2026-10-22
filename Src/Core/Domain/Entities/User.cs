@@ -10,45 +10,61 @@ namespace Domain.Entities
         public string LastName { get; private set; }
         public string Password { get; private set; }
         public Email Email { get; private set; }
-        public Roles Role { get; private set; }
         public DateTime? DeletedAt { get; private set; }
         public string FullName => $"{FirstName} {LastName}";
+        public PlatformRole PlatformRole { get; private set; }
 
         private User(
             string firstName,
             string lastName,
             string password,
             Email email,
-            Roles role)
+            PlatformRole platformRole)
         {
             FirstName = firstName;
             LastName = lastName;
             Password = password;
             Email = email;
-            Role = role;
+            PlatformRole = platformRole;
         }
 
 
         public static User Create(
-            string firstName,
-            string lastName,
-            string password,
-            Email email,
-            Roles role)
+             string firstName,
+             string lastName,
+             string password,
+             Email email)
         {
             firstName = ValidateFirstName(firstName);
             lastName = ValidateLastName(lastName);
             password = ValidatePassword(password);
-
-            if (!Enum.IsDefined(role))
-                throw new DomainRuleViolationException("Invalid user role.");
 
             return new User(
                 firstName,
                 lastName,
                 password,
                 email,
-                role);
+                PlatformRole.NormalUser);
+        }
+
+
+        // for seeder
+        public static User CreatePlatformAdmin(
+            string firstName,
+            string lastName,
+            string password,
+            Email email)
+        {
+            firstName = ValidateFirstName(firstName);
+            lastName = ValidateLastName(lastName);
+            password = ValidatePassword(password);
+
+            return new User(
+                firstName,
+                lastName,
+                password,
+                email,
+                PlatformRole.PlatformAdmin);
         }
 
 
@@ -87,9 +103,6 @@ namespace Domain.Entities
 
         public void SoftDelete()
         {
-            if (Role == Roles.Administrator)
-                throw new DomainRuleViolationException("Admin account cannot be deleted.");
-
             if (DeletedAt.HasValue)
                 return;
 

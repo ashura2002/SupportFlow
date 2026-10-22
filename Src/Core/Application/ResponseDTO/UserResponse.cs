@@ -7,5 +7,6 @@ namespace Application.ResponseDTO
         string FirstName,
         string LastName,
         string Email,
-        Roles Role);
+        TenantRoles? Role,
+        string? TenantName);
 }

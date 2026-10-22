@@ -32,6 +32,11 @@ public sealed class TicketAuditEntryConfiguration : IEntityTypeConfiguration<Tic
             .WithMany()
             .HasForeignKey(t => t.TicketId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne<Tenant>()
+            .WithMany()
+            .HasForeignKey(ta => ta.TenantId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
 

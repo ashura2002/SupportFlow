@@ -23,7 +23,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = Role.Administrator)]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost("requester")]
         public async Task<ActionResult<Guid>> CreateRequester([FromBody] CreateRequesterRequest request, CancellationToken ct)
         {
@@ -37,7 +37,8 @@ namespace WebApi.Controllers
         }
 
 
-        [Authorize(Roles = Role.Administrator)]
+
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost("supportAgent")]
         public async Task<ActionResult<Guid>> CreateSupportAgent([FromBody] CreateSupportAgentRequest request, CancellationToken ct)
         {
@@ -45,6 +46,7 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
+
 
 
         [HttpPut("password")]
@@ -56,6 +58,7 @@ namespace WebApi.Controllers
         }
 
 
+
         [HttpPatch]
         public async Task<ActionResult> UpdateDetails([FromBody] UpdateDetailsRequest request, CancellationToken ct)
         {
@@ -63,6 +66,7 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
+
 
 
         [HttpGet("me")]
@@ -74,7 +78,9 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.Administrator)]
+
+
+        [Authorize(Roles = $"{TenantRoles.TenantAdmin},{PlatformRoles.PlatformAdmin}")]
         [HttpGet("active-users")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<PaginatedResult<UserResponse>>> GetAllActiveUsers(
@@ -86,18 +92,23 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
-        [Authorize(Roles = Role.Administrator)]
+
+
+        [Authorize(Roles = $"{TenantRoles.TenantAdmin},{PlatformRoles.PlatformAdmin}")]
         [HttpGet("deleted-users")]
         [EnableRateLimiting("GetResourcesPolicy")]
-        public async Task<ActionResult<IReadOnlyCollection<DeletedUserResponse>>> GetAllDeletedUsers(CancellationToken ct)
+        public async Task<ActionResult<PaginatedResult<DeletedUserResponse>>> GetAllDeletedUsers(
+            [FromQuery] PaginatedRequest request,
+            CancellationToken ct)
         {
-            var query = new GetAllDeletedUsersQuery();
+            var query = new GetAllDeletedUsersQuery(request.Page, request.PageSize);
             var result = await _mediator.Send(query, ct);
             return this.ToActionResult(result);
         }
 
 
-        [Authorize(Roles = Role.Administrator)]
+
+        [Authorize(Roles = $"{TenantRoles.TenantAdmin},{PlatformRoles.PlatformAdmin}")]
         [HttpGet("{userId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<UserResponse>> GetUserById([FromRoute] Guid userId, CancellationToken ct)
@@ -107,6 +118,8 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
         }
 
+
+
         [HttpDelete("me")]
         public async Task<ActionResult> DeleteAccount([FromBody] DeleteAccountCommand request, CancellationToken ct)
         {
@@ -114,5 +127,23 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
+
+
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
+        [HttpPost("extra-admin")]
+        public async Task<ActionResult<Guid>> CreateExtraAdmin(
+            [FromBody] CreateAdminRequest request,
+            CancellationToken ct)
+        {
+            var command = new CreateAdminCommand(
+                request.FirstName,
+                request.LastName,
+                request.Password,
+                request.Email);
+
+            var result = await _mediator.Send(command, ct);
+            return this.ToActionResult(result);
+        }
+
     }
 }

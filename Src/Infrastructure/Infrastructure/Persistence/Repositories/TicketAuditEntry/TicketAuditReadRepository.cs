@@ -12,23 +12,22 @@ public sealed class TicketAuditReadRepository : ITicketAuditReadRepository
     {
         _context = context;
     }
-    public async Task<IReadOnlyList<TicketAuditResponse>> GetTicketAuditByIdAsync(Guid ticketId, CancellationToken ct)
+    public async Task<IReadOnlyList<TicketAuditResponse>> GetTicketAuditByIdAsync(
+        Guid ticketId, 
+        Guid tenantId,
+        CancellationToken ct)
     {
-        return await _context.Database
-            .SqlQuery<TicketAuditResponse>(
-                $"""
-                    SELECT
-                        ta."Id" AS "TicketAuditId",
-                        ta."ActorUserId",
-                        ta."Action",
-                        ta."OldValue",
-                        ta."NewValue",
-                        ta."CreatedAt"
-                    FROM "TicketAuditEntries" AS ta
-                    WHERE ta."TicketId" = {ticketId}
-                    ORDER BY ta."CreatedAt" DESC
-                """
-            )
-            .ToListAsync(ct);
+        return await _context.TicketAuditEntries
+           .AsNoTracking()
+           .Where(ta => ta.Id == ticketId 
+           && ta.TenantId == tenantId)
+           .Select(ta => new TicketAuditResponse(
+               ta.Id,
+               ta.ActorUserId, 
+               ta.Action, 
+               ta.OldValue, 
+               ta.NewValue,
+               ta.CreatedAt))
+           .ToListAsync(ct);
     }
 }

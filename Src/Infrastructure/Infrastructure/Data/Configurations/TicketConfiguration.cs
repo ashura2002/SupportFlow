@@ -54,6 +54,11 @@ namespace Infrastructure.Data.Configurations
               .HasForeignKey(ticket => ticket.RequesterId)
               .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasOne<Tenant>()
+               .WithMany()
+               .HasForeignKey(t => t.TenantId)
+               .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasIndex(ticket => ticket.TicketNumber)
                 .IsUnique();
 

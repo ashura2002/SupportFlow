@@ -22,11 +22,15 @@ namespace Application.Features.Tickets.Commands
 
         public async Task<Result> Handle(CloseTicketCommand request, CancellationToken cancellationToken)
         {
-            var currentUserId = _currentUserService.UserId;
-            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(request.TicketId, cancellationToken);
+            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(
+                request.TicketId,
+                _currentUserService.UserId,
+                cancellationToken);
+
             if (ticket is null)
                 return Result.Failure(TicketErrors.TicketNotFound);
-            if (ticket.RequesterId != currentUserId)
+
+            if (ticket.RequesterId != _currentUserService.UserId)
                 return Result.Failure(TicketErrors.NotTicketRequester);
 
             ticket.Close();

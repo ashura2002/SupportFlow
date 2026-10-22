@@ -12,7 +12,7 @@ namespace Application.Events
         private readonly INotificationWriteRepository _notificationWriteRepository;
         private readonly ILogger<TicketCreatedDomainEventHandler> _logger;
         public TicketCreatedDomainEventHandler(
-            IUserReadRepository userReadRepository, 
+            IUserReadRepository userReadRepository,
             INotificationWriteRepository notificationWriteRepository,
             ILogger<TicketCreatedDomainEventHandler> logger)
         {
@@ -23,19 +23,31 @@ namespace Application.Events
 
         public async Task Handle(TicketCreatedDomainEvent domainEvent, CancellationToken ct)
         {
-            var admin = await _userReadRepository.GetAdminAsync(ct);
-            if (admin is null)
+
+            var admins = await _userReadRepository.GetTenantAdminsAsync(domainEvent.TenantId, ct);
+
+            if (admins.Count == 0)
+            {
+                _logger.LogWarning(
+                    "No active TenantAdmins found for tenant {TenantId}",
+                    domainEvent.TenantId);
                 return;
+            }
 
-            var notification = Notification.Create(
-                "New ticket created.", 
-                admin.Id);
-            _notificationWriteRepository.Add(notification);
 
+            foreach (var admin in admins)
+            {
+                var notification = Notification.Create(
+               "New ticket created.",
+               admin.Id);
+                _notificationWriteRepository.Add(notification);
+            }
 
             _logger.LogInformation(
-                "New ticket created by {RequesterId}", 
-                domainEvent.RequesterId);
+                "Created ticket notifications for {AdminCount} TenantAdmins. RequesterId: {RequesterId}, TenantId: {TenantId}",
+                admins.Count,
+                domainEvent.RequesterId,
+                domainEvent.TenantId);
         }
     }
 }

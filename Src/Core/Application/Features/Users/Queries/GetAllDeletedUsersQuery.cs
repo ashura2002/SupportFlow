@@ -4,4 +4,4 @@ using MediatR;
 
 namespace Application.Features.Users.Queries;
 
-public sealed record GetAllDeletedUsersQuery : IRequest<Result<IReadOnlyCollection<DeletedUserResponse>>>;
+public sealed record GetAllDeletedUsersQuery(int Page, int PageSize) : IRequest<Result<PaginatedResult<DeletedUserResponse>>>;

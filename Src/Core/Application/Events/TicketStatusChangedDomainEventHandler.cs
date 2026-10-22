@@ -27,7 +27,8 @@ public sealed class TicketStatusChangedDomainEventHandler : IEventHandler<Ticket
             _currentUserService.UserId,
             TicketAuditAction.StatusChanged,
             domainEvent.OldStatus,
-            domainEvent.NewStatus);
+            domainEvent.NewStatus,
+            _currentUserService.TenantId);
 
         _ticketAuditWriteRepository.Add(audit);
         return Task.CompletedTask;

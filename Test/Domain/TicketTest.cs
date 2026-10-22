@@ -10,12 +10,14 @@ public class TicketTests
 {
     private const Priority DefaultPriority = Priority.Low;
 
+    private static readonly Guid TenantId = Guid.NewGuid();
     private static readonly Guid CategoryId = Guid.NewGuid();
     private static readonly Guid RequesterId = Guid.NewGuid();
     private static readonly Guid AgentId = Guid.NewGuid();
 
     private static Ticket CreateTicket() =>
         Ticket.Create(
+            TenantId,
             "TCK-0001",
             "Login issue",
             "Cannot login to the portal",
@@ -63,7 +65,9 @@ public class TicketTests
             return ticket;
 
         throw new ArgumentOutOfRangeException(
-            nameof(status), status, "Unsupported status for test setup.");
+            nameof(status),
+            status,
+            "Unsupported status for test setup.");
     }
 
     public static IEnumerable<object[]> AllStatusesExcept(
@@ -98,18 +102,12 @@ public class TicketTests
     [Fact]
     public void Create_WithValidData_ReturnsOpenUnassignedTicket()
     {
-        var ticket = Ticket.Create(
-            "TCK-0001",
-            "Login issue",
-            "Cannot login",
-            DefaultPriority,
-            CategoryId,
-            RequesterId,
-            dueAt: null);
+        var ticket = CreateTicket();
 
+        Assert.Equal(TenantId, ticket.TenantId);
         Assert.Equal("TCK-0001", ticket.TicketNumber);
         Assert.Equal("Login issue", ticket.Title);
-        Assert.Equal("Cannot login", ticket.Description);
+        Assert.Equal("Cannot login to the portal", ticket.Description);
         Assert.Equal(TicketStatus.Open, ticket.Status);
         Assert.Equal(DefaultPriority, ticket.Priority);
         Assert.Equal(CategoryId, ticket.CategoryId);
@@ -123,6 +121,7 @@ public class TicketTests
     public void Create_TrimsTextFields()
     {
         var ticket = Ticket.Create(
+            TenantId,
             "  TCK-0001  ",
             "  Login issue  ",
             "  Cannot login  ",
@@ -146,6 +145,7 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
+                TenantId,
                 value!,
                 "Login issue",
                 "Cannot login",
@@ -164,6 +164,7 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
+                TenantId,
                 "TCK-0001",
                 value!,
                 "Cannot login",
@@ -182,6 +183,7 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
+                TenantId,
                 "TCK-0001",
                 "Login issue",
                 value!,
@@ -195,6 +197,7 @@ public class TicketTests
     public void Create_WithTextOfExactlyThreeCharacters_Succeeds()
     {
         var ticket = Ticket.Create(
+            TenantId,
             "TCK",
             "abc",
             "xyz",
@@ -204,6 +207,23 @@ public class TicketTests
             dueAt: null);
 
         Assert.Equal("abc", ticket.Title);
+    }
+
+    [Fact]
+    public void Create_WithInvalidPriority_Throws()
+    {
+        var invalidPriority = (Priority)999;
+
+        Assert.Throws<DomainRuleViolationException>(() =>
+            Ticket.Create(
+                TenantId,
+                "TCK-0001",
+                "Login issue",
+                "Cannot login",
+                invalidPriority,
+                CategoryId,
+                RequesterId,
+                dueAt: null));
     }
 
     // ---------- AssignAgent ----------
