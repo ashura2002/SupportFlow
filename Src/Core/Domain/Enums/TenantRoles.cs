@@ -1,8 +1,8 @@
 ﻿namespace Domain.Enums
 {
-    public enum Roles
+    public enum TenantRoles
     {
-        Administrator,
+        TenantAdmin,
         SupportAgent,
         Requester
     }

@@ -5,6 +5,8 @@ namespace Application.Interfaces.Services
     public interface ICurrentUserService
     {
         Guid UserId { get; }
-        Roles Role { get; }
+        TenantRoles Role { get; }
+        Guid TenantId { get; }
+        bool IsPlatformAdmin { get; }
     }
 }

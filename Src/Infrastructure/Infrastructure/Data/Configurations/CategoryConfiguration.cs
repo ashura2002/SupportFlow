@@ -16,7 +16,11 @@ namespace Infrastructure.Data.Configurations
             builder.Property(category => category.Description)
                 .IsRequired(false);
 
-            builder.HasIndex(category => category.Name).IsUnique();
+            builder.HasOne<Tenant>()
+                .WithMany()
+                .HasForeignKey(category => category.TenantId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasQueryFilter(category => category.DeletedAt == null);
         }
     }

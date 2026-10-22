@@ -11,13 +11,16 @@ public class TicketAuditEntry : BaseEntity
     public TicketAuditAction Action { get; private set; }
     public TicketStatus? OldValue { get; private set; }
     public TicketStatus? NewValue { get; private set; }
+    public Guid TenantId { get; private set; }
+
 
     private TicketAuditEntry(
         Guid ticketId,
         Guid? actorUserId,
         TicketAuditAction action,
         TicketStatus? oldValue,
-        TicketStatus? newValue
+        TicketStatus? newValue,
+        Guid tenantId
     )
     {
         TicketId = ticketId;
@@ -25,6 +28,7 @@ public class TicketAuditEntry : BaseEntity
         Action = action;
         OldValue = oldValue;
         NewValue = newValue;
+        TenantId = tenantId;
     }
 
 
@@ -33,7 +37,8 @@ public class TicketAuditEntry : BaseEntity
         Guid? actorUserId,
         TicketAuditAction action,
         TicketStatus? oldValue,
-        TicketStatus? newValue
+        TicketStatus? newValue,
+        Guid tenantId
     )
     {
         if (ticketId == Guid.Empty)
@@ -47,7 +52,8 @@ public class TicketAuditEntry : BaseEntity
             actorUserId,
             action,
             oldValue,
-            newValue
+            newValue,
+            tenantId
         );
     }
 }

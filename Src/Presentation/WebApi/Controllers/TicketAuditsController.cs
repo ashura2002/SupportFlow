@@ -19,7 +19,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
-        [Authorize(Roles = Role.Administrator)]
+        [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpGet("{ticketId:guid}/details")]
         public async Task<ActionResult<IReadOnlyList<TicketAuditResponse>>> GetAuditByTicketId(
             [FromRoute] Guid ticketId,

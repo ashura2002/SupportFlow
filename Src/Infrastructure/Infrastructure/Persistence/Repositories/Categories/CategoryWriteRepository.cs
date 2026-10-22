@@ -18,10 +18,14 @@ namespace Infrastructure.Persistence.Repositories.Categories
             _context.Categories.Add(category);
         }
 
-        public async Task<Category?> GetCategoryByIdAsync(Guid categoryId, CancellationToken ct)
+        public async Task<Category?> GetCategoryByIdAsync(
+            Guid categoryId,
+            Guid tenantId,
+            CancellationToken ct)
         {
             return await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
+                .FirstOrDefaultAsync(c => c.Id == categoryId
+                && c.TenantId == tenantId, ct);
         }
     }
 }

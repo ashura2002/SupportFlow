@@ -25,12 +25,16 @@ namespace Application.Features.Tickets.Commands
 
         public async Task<Result> Handle(WaitForUserCommand request, CancellationToken cancellationToken)
         {
-            var currentUserId = _currentUserService.UserId;
-            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(request.TicketId, cancellationToken);
+
+            var ticket = await _ticketWriteRepository.GetTicketByIdAsync(
+                request.TicketId, 
+                _currentUserService.TenantId,
+                cancellationToken);
+
             if (ticket is null)
                 return Result.Failure(TicketErrors.TicketNotFound);
 
-            if (ticket.AssignedAgentId != currentUserId)
+            if (ticket.AssignedAgentId != _currentUserService.UserId)
                 return Result.Failure(TicketErrors.NotAssignedAgent);
 
             ticket.WaitForUser();

@@ -43,20 +43,21 @@ namespace Application.Features.Tickets.Commands
 
             var ticket = await _ticketWriteRepository.GetTicketByIdAsync(
                 request.TicketId,
+                _currentUserService.TenantId,
                 cancellationToken);
 
             if (ticket is null)
                 return Result.Failure(TicketErrors.TicketNotFound);
 
 
-            if (currentUserRole == Roles.Requester &&
+            if (currentUserRole == TenantRoles.Requester &&
                 ticket.RequesterId != currentUserId)
             {
                 return Result.Failure(TicketErrors.NotTicketRequester);
             }
 
 
-            if (currentUserRole == Roles.SupportAgent &&
+            if (currentUserRole == TenantRoles.SupportAgent &&
                 ticket.AssignedAgentId != currentUserId)
             {
                 return Result.Failure(TicketErrors.NotAssignedAgent);
@@ -72,7 +73,7 @@ namespace Application.Features.Tickets.Commands
 
             // if the agent was waiting for the Requester, the requesters reply
             // allows the agent to continue working on the ticket
-            if (currentUserRole == Roles.Requester &&
+            if (currentUserRole == TenantRoles.Requester &&
                 ticket.Status == TicketStatus.WaitingForUser)
             {
                 ticket.ResumeProgress();

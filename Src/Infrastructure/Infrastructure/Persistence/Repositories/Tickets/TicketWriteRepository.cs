@@ -20,10 +20,14 @@ namespace Infrastructure.Persistence.Repositories.Tickets
             _context.Tickets.Add(ticket);
         }
 
-        public async Task<Ticket?> GetTicketByIdAsync(Guid ticketId, CancellationToken ct)
+        public async Task<Ticket?> GetTicketByIdAsync(
+            Guid ticketId, 
+            Guid tenantId, 
+            CancellationToken ct)
         {
             return await _context.Tickets
-                .FirstOrDefaultAsync(t => t.Id == ticketId, ct);
+                .FirstOrDefaultAsync(t => t.Id == ticketId 
+                && t.TenantId == tenantId, ct);
         }
 
         public void Remove(Ticket ticket)

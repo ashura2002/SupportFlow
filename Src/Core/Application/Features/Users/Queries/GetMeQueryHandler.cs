@@ -21,7 +21,12 @@ namespace Application.Features.Users.Queries
         public async Task<Result<UserResponse>> Handle(GetMeQuery request, CancellationToken cancellationToken)
         {
             var currentUserId = _currentUserService.UserId;
-            var user = await _userReadRepository.GetUserByIdAsync(currentUserId, cancellationToken);
+            Guid? tenantId = _currentUserService.IsPlatformAdmin ? null : _currentUserService.TenantId;
+
+            var user = await _userReadRepository.GetUserByIdAsync(
+                currentUserId,
+                tenantId,
+                cancellationToken);
 
             if (user is null)
                 return Result<UserResponse>.Failure(UserErrors.UserNotFound);

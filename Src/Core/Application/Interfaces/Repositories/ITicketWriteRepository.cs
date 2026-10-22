@@ -6,6 +6,9 @@ namespace Application.Interfaces.Repositories
     {
         void Add(Ticket ticket);
         void Remove(Ticket ticket);
-        Task<Ticket?> GetTicketByIdAsync(Guid ticketId, CancellationToken ct);
+        Task<Ticket?> GetTicketByIdAsync(
+            Guid ticketId,
+            Guid tenantId,
+            CancellationToken ct);
     }
 }

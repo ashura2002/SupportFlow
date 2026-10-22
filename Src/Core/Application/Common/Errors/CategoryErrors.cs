@@ -12,7 +12,7 @@ namespace Application.Common.Errors
 
         public static readonly Error CategoryNameExist = new(
             "Category.Conflict",
-            "Category name already existed.",
+            "Category name already existed in this tenant.",
             ErrorType.Conflict);
     }
 }

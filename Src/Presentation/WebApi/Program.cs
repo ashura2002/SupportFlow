@@ -82,6 +82,7 @@ using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     await seeder.SeedAdminUser();
+    await seeder.SeedDemoTenantData();
 }
 
 // for Swaggger UI

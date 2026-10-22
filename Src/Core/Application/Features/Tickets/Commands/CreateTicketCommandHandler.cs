@@ -35,21 +35,25 @@ namespace Application.Features.Tickets.Commands
 
         public async Task<Result<Guid>> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
         {
-            var category = await _categoryReadRepository.GetCategoryByIdAsync(request.CategoryId, cancellationToken);
+            var category = await _categoryReadRepository.GetCategoryByIdAsync(
+                request.CategoryId,
+                _currentUserService.TenantId,
+                cancellationToken);
+
             if (category is null)
                 return Result<Guid>.Failure(CategoryErrors.CategoryNotFound);
 
-            var currentUserId = _currentUserService.UserId;
             var ticketNumber = await _ticketNumberGeneratorService.GenerateTicketNumber(cancellationToken);
             var dueAt = DateTime.UtcNow.AddHours(_slaPolicy.ResolutionHours);
 
             var ticket = Ticket.Create(
+                _currentUserService.TenantId,
                 ticketNumber,
                 request.Title,
                 request.Description,
                 request.Priority,
                 request.CategoryId,
-                currentUserId,
+                _currentUserService.UserId,
                 dueAt);
 
             _ticketWriteRepository.Add(ticket);

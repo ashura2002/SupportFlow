@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using Domain.Enums;
 
 namespace Infrastructure.Services
 {
@@ -18,12 +19,16 @@ namespace Infrastructure.Services
             _jwtSettings = options.Value;
         }
 
-        public string GenerateAccessToken(User user)
+        public string GenerateAccessToken(
+            User user,
+            Guid tenantId,
+            TenantRoles roles)
         {
             List<Claim> claims = new()
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new(ClaimTypes.Role, user.Role.ToString()),
+                new("tenant_id", tenantId.ToString()),
+                new(ClaimTypes.Role, roles.ToString()),
                 new(ClaimTypes.Email, user.Email.Value.ToString())
             };
 
@@ -43,6 +48,34 @@ namespace Infrastructure.Services
                             signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(accessToken);
+        }
+
+        public string GeneratePlatformAccessToken(User user){
+
+
+            List<Claim> claims = new()
+            {
+                new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new(ClaimTypes.Role, PlatformRole.PlatformAdmin.ToString()),
+                new(ClaimTypes.Email, user.Email.Value.ToString())
+            };
+
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_jwtSettings.Key));
+
+            var credentials = new SigningCredentials(
+                key,
+                SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddHours(
+                    _jwtSettings.ExpiryInHours),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
 }
