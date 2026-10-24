@@ -38,13 +38,13 @@ namespace Infrastructure.Data
             if (existingUser)
                 return;
 
-            var email = Email.Create(_seededUserSetting.Email);
+            var email = Email.Create(_seededUserSetting.SEEDED_USER_EMAIL);
             var password = _passwordHasher.HashPassword(
-                _seededUserSetting.Password);
+                _seededUserSetting.SEEDED_USER_PASSWORD);
 
             var systemAdmin = User.CreatePlatformAdmin(
-                _seededUserSetting.FirstName,
-                _seededUserSetting.LastName,
+                _seededUserSetting.SEEDED_USER_FIRST_NAME,
+                _seededUserSetting.SEEDED_USER_LAST_NAME,
                 password,
                 email);
 

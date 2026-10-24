@@ -3,9 +3,9 @@
     public sealed class SeededUserSettings
     {
         public const string SectionName = "SeededUser";
-        public required string FirstName { get; init; }
-        public required string LastName { get; init; }
-        public required string Password { get; init; }
-        public required string Email { get; init; }
+        public required string SEEDED_USER_FIRST_NAME { get; init; }
+        public required string SEEDED_USER_LAST_NAME { get; init; }
+        public required string SEEDED_USER_PASSWORD { get; init; }
+        public required string SEEDED_USER_EMAIL { get; init; }
     }
 }
