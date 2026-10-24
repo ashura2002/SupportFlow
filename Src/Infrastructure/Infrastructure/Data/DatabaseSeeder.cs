@@ -32,8 +32,6 @@ namespace Infrastructure.Data
         public async Task SeedAdminUser(
             CancellationToken cancellationToken = default)
         {
-            Console.WriteLine("SEEDED USER EMAIL "+ _seededUserSetting.SEEDED_USER_EMAIL);
-
 
             bool existingUser = await _context.Users
                 .AnyAsync(cancellationToken);
