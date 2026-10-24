@@ -35,10 +35,10 @@ services:
       Jwt__Audience: SupportFlowUsers
       Jwt__ExpiryInHours: "24"
 
-      SeededUser__FirstName: ${SEEDED_USER_FIRST_NAME}
-      SeededUser__LastName: ${SEEDED_USER_LAST_NAME}
-      SeededUser__Email: ${SEEDED_USER_EMAIL}
-      SeededUser__Password: ${SEEDED_USER_PASSWORD}
+      SeededUser__SEEDED_USER_FIRST_NAME: ${SEEDED_USER_FIRST_NAME:?Set SEEDED_USER_FIRST_NAME in .env}
+      SeededUser__SEEDED_USER_LAST_NAME: ${SEEDED_USER_LAST_NAME:?Set SEEDED_USER_LAST_NAME in .env}
+      SeededUser__SEEDED_USER_EMAIL: ${SEEDED_USER_EMAIL:?Set SEEDED_USER_EMAIL in .env}
+      SeededUser__SEEDED_USER_PASSWORD: ${SEEDED_USER_PASSWORD:?Set SEEDED_USER_PASSWORD in .env}
 
       Cloudinary__CloudName: ${CLOUDINARY_CLOUD_NAME}
       Cloudinary__ApiKey: ${CLOUDINARY_API_KEY}
