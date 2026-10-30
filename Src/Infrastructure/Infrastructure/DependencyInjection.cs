@@ -31,8 +31,11 @@ namespace Infrastructure
             // ef core
             services.AddDbContext<SharedDbContext>(option => 
                      option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+
             services.AddDbContext<TenantDbContext>(option =>
-                     option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+                     option.UseNpgsql(
+                     configuration.GetConnectionString("DefaultConnection"),
+                     npgsqlOptions => npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "tenant-template")));
 
 
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
