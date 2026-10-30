@@ -39,30 +39,20 @@ namespace Infrastructure.Data.Configurations
             builder.Property(ticket => ticket.DueAt)
                 .IsRequired(false);
 
-            builder.HasOne<Category>()
-                .WithMany()
-                .HasForeignKey(ticket => ticket.CategoryId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(ticket => ticket.AssignedAgentId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne<User>()
-              .WithMany()
-              .HasForeignKey(ticket => ticket.RequesterId)
-              .OnDelete(DeleteBehavior.Restrict);
-
-            builder.HasOne<Tenant>()
-               .WithMany()
-               .HasForeignKey(t => t.TenantId)
-               .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasIndex(ticket => ticket.TicketNumber)
                 .IsUnique();
 
+
+            builder.HasOne<Category>()
+                .WithMany()
+                .HasForeignKey(t => t.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.HasQueryFilter(ticket => ticket.DeletedAt == null);
+
+            builder.HasIndex(ticket => ticket.AssignedAgentId);
+
+            builder.HasIndex(ticket => ticket.RequesterId);
         }
     }
 }

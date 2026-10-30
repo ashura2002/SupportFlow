@@ -1,4 +1,5 @@
 using Application;
+using Application.Interfaces.Services;
 using Domain.Exceptions;
 using FluentValidation;
 using Infrastructure;
@@ -6,6 +7,7 @@ using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Serilog;
+using WebApi.Middlewares;
 using WebAPI;
 using WebAPI.Middlewares;
 
@@ -51,7 +53,7 @@ builder.WebHost.UseSentry(option =>
 // healthcheck for postgresql
 builder.Services
     .AddHealthChecks()
-    .AddDbContextCheck<SupportFlowDbContext>();
+    .AddDbContextCheck<SharedDbContext>();
 
 builder.Services.AddCors(option => option.AddPolicy("AllowAll", policy =>
 {
@@ -66,6 +68,7 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddJwtAuthenticationDI(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
+builder.Services.AddScoped<TenantResolutionMiddleware>();
 
 
 
@@ -82,7 +85,6 @@ using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<DatabaseSeeder>();
     await seeder.SeedAdminUser();
-    await seeder.SeedDemoTenantData();
 }
 
 // for Swaggger UI
@@ -90,10 +92,12 @@ app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+app.UseRouting();
 app.UseCors("AllowAll");
 app.UseRateLimiter();
 app.UseSerilogRequestLogging();
 app.UseExceptionHandler();
+app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapHealthChecks("/db-health");

@@ -6,8 +6,8 @@ namespace Infrastructure.Persistence.Repositories.TicketReplies
 {
     public sealed class TicketReplyWriteRepository : ITicketReplyWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public TicketReplyWriteRepository(SupportFlowDbContext context)
+        private readonly TenantDbContext _context;
+        public TicketReplyWriteRepository(TenantDbContext context)
         {
             _context = context;
         }

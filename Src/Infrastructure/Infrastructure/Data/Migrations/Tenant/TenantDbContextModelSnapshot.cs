@@ -3,23 +3,21 @@ using System;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace Infrastructure.Data.Migrations.Tenant
 {
-    [DbContext(typeof(SupportFlowDbContext))]
-    [Migration("20261011143031_AddTicketAuditEntryModel")]
-    partial class AddTicketAuditEntryModel
+    [DbContext(typeof(TenantDbContext))]
+    partial class TenantDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("tenant-template")
                 .HasAnnotation("ProductVersion", "10.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -49,10 +47,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.Notification", b =>
@@ -81,7 +76,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Notifications");
+                    b.ToTable("Notifications", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
@@ -140,7 +135,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("TicketNumber")
                         .IsUnique();
 
-                    b.ToTable("Tickets");
+                    b.ToTable("Tickets", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.TicketAttachmentReply", b =>
@@ -170,7 +165,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TicketReplyId");
 
-                    b.ToTable("TicketAttachmentReply");
+                    b.ToTable("TicketAttachmentReply", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.TicketAuditEntry", b =>
@@ -188,11 +183,11 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("NewValue")
-                        .HasColumnType("text");
+                    b.Property<int?>("NewValue")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("OldValue")
-                        .HasColumnType("text");
+                    b.Property<int?>("OldValue")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("TicketId")
                         .HasColumnType("uuid");
@@ -202,9 +197,11 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActorUserId");
+
                     b.HasIndex("TicketId");
 
-                    b.ToTable("TicketAuditEntries");
+                    b.ToTable("TicketAuditEntries", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.TicketReply", b =>
@@ -235,80 +232,14 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("TicketId");
 
-                    b.ToTable("TicketReplies");
-                });
-
-            modelBuilder.Entity("Domain.Entities.User", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("character varying(250)");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Notification", b =>
-                {
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    b.ToTable("TicketReplies", "tenant-template");
                 });
 
             modelBuilder.Entity("Domain.Entities.Ticket", b =>
                 {
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("AssignedAgentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Domain.Entities.Category", null)
                         .WithMany()
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("RequesterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
@@ -333,12 +264,6 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.TicketReply", b =>
                 {
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Ticket", null)
                         .WithMany()
                         .HasForeignKey("TicketId")

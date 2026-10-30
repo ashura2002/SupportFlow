@@ -7,8 +7,8 @@ namespace Infrastructure.Persistence.Repositories.Tickets
 {
     public sealed class TicketReadRepository : ITicketReadRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public TicketReadRepository(SupportFlowDbContext context)
+        private readonly SharedDbContext _context;
+        public TicketReadRepository(SharedDbContext context)
         {
             _context = context;
         }

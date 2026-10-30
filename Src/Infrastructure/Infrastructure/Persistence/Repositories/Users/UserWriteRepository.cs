@@ -8,9 +8,9 @@ namespace Infrastructure.Persistence.Repositories.Users
 {
     internal sealed class UserWriteRepository : IUserWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
 
-        public UserWriteRepository(SupportFlowDbContext context)
+        public UserWriteRepository(SharedDbContext context)
         {
             _context = context;
         }

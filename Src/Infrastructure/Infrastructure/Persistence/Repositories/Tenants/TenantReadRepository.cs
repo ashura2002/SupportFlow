@@ -7,11 +7,26 @@ namespace Infrastructure.Persistence.Repositories.Tenants
 {
     public sealed class TenantReadRepository : ITenantReadRepository
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
 
-        public TenantReadRepository(SupportFlowDbContext context)
+        public TenantReadRepository(SharedDbContext context)
         {
             _context = context;
+        }
+
+        public async Task<TenantResponse?> GetActiveTenantByIdentifierAsync(string identifier, CancellationToken ct)
+        {
+            return await _context.Tenants
+                .AsNoTracking()
+                .Where(t => t.Identifier == identifier && t.IsActive)
+                .Select(t => new TenantResponse(
+                    t.Id,
+                    t.Name,
+                    t.Identifier,
+                    t.SchemaName,
+                    t.IsActive,
+                    t.CreatedAt))
+                .FirstOrDefaultAsync(ct);
         }
 
         public async Task<TenantResponse?> GetActiveTenantByIdAsync(Guid id, CancellationToken ct)

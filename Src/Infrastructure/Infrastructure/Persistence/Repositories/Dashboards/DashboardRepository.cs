@@ -7,20 +7,24 @@ namespace Infrastructure.Persistence.Repositories.Dashboards;
 
 public sealed class DashboardRepository : IDashboardRepository
 {
-    private readonly SupportFlowDbContext _context;
+    private readonly SharedDbContext _sharedContext;
+    private readonly TenantDbContext _tenantContext;
 
-    public DashboardRepository(SupportFlowDbContext context)
+    public DashboardRepository(
+        SharedDbContext sharedContext,
+        TenantDbContext tenantDbContext)
     {
-        _context = context;
+        _sharedContext = sharedContext;
+        _tenantContext = tenantDbContext;
     }
 
     public async Task<DashboardResponse> GetDashboardResponseAsync(
         Guid tenantId,
         CancellationToken ct)
     {
-        var tenantUsers = _context.TenantMemberships
+        var tenantUsers = _sharedContext.TenantMemberships
             .Where(m => m.TenantId == tenantId)
-            .Join(_context.Users.IgnoreQueryFilters(),
+            .Join(_sharedContext.Users.IgnoreQueryFilters(),
               membership => membership.UserId,
               user => user.Id,
               (_, user) => user);
@@ -37,8 +41,7 @@ public sealed class DashboardRepository : IDashboardRepository
             .Distinct()
             .CountAsync(ct);
 
-        var tenantTickets = _context.Tickets
-            .Where(t => t.TenantId == tenantId)
+        var tenantTickets = _tenantContext.Tickets
             .Where(t => !t.DeletedAt.HasValue);
 
         var totalTickets = await tenantTickets.CountAsync(ct);

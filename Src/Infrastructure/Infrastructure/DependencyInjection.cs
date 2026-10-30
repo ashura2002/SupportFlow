@@ -29,7 +29,10 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // ef core
-            services.AddDbContext<SupportFlowDbContext>(option => option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<SharedDbContext>(option => 
+                     option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+            services.AddDbContext<TenantDbContext>(option =>
+                     option.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
 
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
@@ -66,6 +69,8 @@ namespace Infrastructure
 
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<ITenantContext, TenantContext>();
+            services.AddScoped<ITenantProvisioningService, TenantProvisioningService>();
             services.AddTransient<IPasswordService, BcryptService>();
             services.AddTransient<IJwtService, JsonWebTokenService>();
             services.AddTransient<ITicketNumberGeneratorService, TicketNumberGeneratorService>();

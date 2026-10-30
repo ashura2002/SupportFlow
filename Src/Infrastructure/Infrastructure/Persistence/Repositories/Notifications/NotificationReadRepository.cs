@@ -7,8 +7,8 @@ namespace Infrastructure.Persistence.Repositories.Notifications
 {
     public sealed class NotificationReadRepository : INotificationReadRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public NotificationReadRepository(SupportFlowDbContext context)
+        private readonly SharedDbContext _context;
+        public NotificationReadRepository(SharedDbContext context)
         {
             _context = context;
         }

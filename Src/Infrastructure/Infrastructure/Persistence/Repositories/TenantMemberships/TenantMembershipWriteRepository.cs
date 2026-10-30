@@ -7,9 +7,9 @@ namespace Infrastructure.Persistence.Repositories.TenantMemberships
 {
     public sealed class TenantMembershipWriteRepository : ITenantMembershipWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
 
-        public TenantMembershipWriteRepository(SupportFlowDbContext context)
+        public TenantMembershipWriteRepository(SharedDbContext context)
         {
             _context = context;
         }

@@ -6,6 +6,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Attributes;
 using WebApi.Constant;
 using WebApi.Extensions;
 using WebApi.Request;
@@ -15,6 +16,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [RequireTenant]
     public class TicketsController : ControllerBase
     {
         private readonly IMediator _mediator;

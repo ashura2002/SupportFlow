@@ -7,10 +7,10 @@ namespace Infrastructure.Services
 {
     public sealed class TicketNumberGeneratorService : ITicketNumberGeneratorService
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
 
         public TicketNumberGeneratorService(
-            SupportFlowDbContext context)
+            SharedDbContext context)
         {
             _context = context;
         }

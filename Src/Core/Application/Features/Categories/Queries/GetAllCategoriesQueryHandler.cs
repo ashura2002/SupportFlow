@@ -22,7 +22,6 @@ namespace Application.Features.Categories.Queries
         public async Task<Result<PaginatedResult<CategoryResponse>>> Handle(GetAllCategoriesQuery request, CancellationToken cancellationToken)
         {
             var categories = await _categoryReadRepository.GetAllCategoriesAsync(
-                _currentUserService.TenantId,
                 request.Page,
                 request.PageSize,
                 cancellationToken);

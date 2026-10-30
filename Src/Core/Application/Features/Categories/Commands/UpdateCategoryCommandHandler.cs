@@ -37,7 +37,6 @@ namespace Application.Features.Categories.Commands
 
             if (await _categoryReadRepository.IsCategoryNameExist(
                 request.Name,
-                _currentUserService.TenantId,
                 category.Id,
                 cancellationToken))
                 return Result.Failure(CategoryErrors.CategoryNameExist);

@@ -7,9 +7,9 @@ namespace Infrastructure.Persistence.Repositories.Tickets
 {
     public sealed class TicketWriteRepository : ITicketWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly TenantDbContext _context;
 
-        public TicketWriteRepository(SupportFlowDbContext context)
+        public TicketWriteRepository(TenantDbContext context)
         {
             _context = context;
         }
@@ -26,8 +26,7 @@ namespace Infrastructure.Persistence.Repositories.Tickets
             CancellationToken ct)
         {
             return await _context.Tickets
-                .FirstOrDefaultAsync(t => t.Id == ticketId 
-                && t.TenantId == tenantId, ct);
+                .FirstOrDefaultAsync(t => t.Id == ticketId, ct);
         }
 
         public void Remove(Ticket ticket)

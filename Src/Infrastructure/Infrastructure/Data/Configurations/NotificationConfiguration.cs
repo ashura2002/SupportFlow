@@ -12,10 +12,11 @@ namespace Infrastructure.Data.Configurations
 
             builder.Property(n => n.Content)
                 .IsRequired();
-            builder.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(n => n.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(n => n.UserId)
+                .IsRequired();
+
+            builder.HasIndex(n => n.UserId);
         }
     }
 }

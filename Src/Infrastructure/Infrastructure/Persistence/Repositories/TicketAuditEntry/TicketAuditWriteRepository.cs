@@ -5,8 +5,8 @@ namespace Infrastructure.Persistence.Repositories.TicketAuditEntry;
 
 public sealed class TicketAuditWriteRepository : ITicketAuditWriteRepository
 {
-    private readonly SupportFlowDbContext _context;
-    public TicketAuditWriteRepository(SupportFlowDbContext context)
+    private readonly TenantDbContext _context;
+    public TicketAuditWriteRepository(TenantDbContext context)
     {
         _context = context;
     }

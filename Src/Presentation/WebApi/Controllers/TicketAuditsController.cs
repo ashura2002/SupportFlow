@@ -4,6 +4,7 @@ using Application.ResponseDTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Attributes;
 using WebApi.Constant;
 using WebApi.Extensions;
 
@@ -11,6 +12,7 @@ namespace WebApi.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [RequireTenant]
     public class TicketAuditsController : ControllerBase
     {
         private readonly IMediator _mediator;

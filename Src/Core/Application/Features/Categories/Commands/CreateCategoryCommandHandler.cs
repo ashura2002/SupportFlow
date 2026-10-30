@@ -30,13 +30,11 @@ namespace Application.Features.Categories.Commands
         {
             if (await _categoryReadRepository.IsCategoryNameExist(
                 request.Name, 
-                _currentUserService.TenantId,
                 null,
                 cancellationToken))
                 return Result<Guid>.Failure(CategoryErrors.CategoryNameExist);
 
             var category = Category.Create(
-                _currentUserService.TenantId,
                 request.Name,
                 request.Description);
             _categoryWriteRepository.Add(category);

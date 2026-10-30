@@ -16,16 +16,12 @@ namespace Infrastructure.Data.Configurations
             builder.Property(ticketReply => ticketReply.AuthorId)
                 .IsRequired();
 
-
             builder.HasOne<Ticket>()
                 .WithMany()
                 .HasForeignKey(ticketReply => ticketReply.TicketId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasOne<User>()
-                .WithMany()
-                .HasForeignKey(ticketReply => ticketReply.AuthorId)
-                .OnDelete(DeleteBehavior.Restrict);
+            builder.HasIndex(ticketReply => ticketReply.AuthorId);
         }
     }
 }

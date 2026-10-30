@@ -8,10 +8,10 @@ namespace Infrastructure.Persistence
 {
     internal class UnitOfWork : IUnitOfWork
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
         private readonly IEventDispatcher _eventDispatcher;
 
-        public UnitOfWork(SupportFlowDbContext context, IEventDispatcher eventDispatcher)
+        public UnitOfWork(SharedDbContext context, IEventDispatcher eventDispatcher)
         {
             _context = context;
             _eventDispatcher = eventDispatcher;

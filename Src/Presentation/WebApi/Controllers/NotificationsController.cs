@@ -4,6 +4,7 @@ using Application.ResponseDTO;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApi.Attributes;
 using WebApi.Extensions;
 
 namespace WebApi.Controllers
@@ -12,6 +13,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
+    [RequireTenant]
     public class NotificationsController : ControllerBase
     {
         private readonly IMediator _mediator;

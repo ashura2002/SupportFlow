@@ -7,8 +7,8 @@ namespace Infrastructure.Persistence.Repositories.TicketAuditEntry;
 
 public sealed class TicketAuditReadRepository : ITicketAuditReadRepository
 {
-    private readonly SupportFlowDbContext _context;
-    public TicketAuditReadRepository(SupportFlowDbContext context)
+    private readonly TenantDbContext _context;
+    public TicketAuditReadRepository(TenantDbContext context)
     {
         _context = context;
     }
@@ -19,8 +19,7 @@ public sealed class TicketAuditReadRepository : ITicketAuditReadRepository
     {
         return await _context.TicketAuditEntries
            .AsNoTracking()
-           .Where(ta => ta.Id == ticketId 
-           && ta.TenantId == tenantId)
+           .Where(ta => ta.Id == ticketId)
            .Select(ta => new TicketAuditResponse(
                ta.Id,
                ta.ActorUserId, 
