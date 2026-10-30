@@ -32,7 +32,7 @@ namespace Infrastructure.Data.Configurations
                 .HasForeignKey(tm => tm.TenantId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasIndex(tm => tm.UserId)
+            builder.HasIndex(tm => new { tm.TenantId, tm.UserId })
                 .IsUnique();
         }
     }

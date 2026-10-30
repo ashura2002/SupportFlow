@@ -7,8 +7,8 @@ namespace Infrastructure.Persistence.Repositories.Notifications
 {
     public sealed class NotificationWriteRepository : INotificationWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public NotificationWriteRepository(SupportFlowDbContext context)
+        private readonly TenantDbContext _context;
+        public NotificationWriteRepository(TenantDbContext context)
         {
             _context = context;
         }

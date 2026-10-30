@@ -7,8 +7,8 @@ namespace Infrastructure.Persistence.Repositories.Categories
 {
     public sealed class CategoryWriteRepository : ICategoryWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public CategoryWriteRepository(SupportFlowDbContext context)
+        private readonly TenantDbContext _context;
+        public CategoryWriteRepository(TenantDbContext context)
         {
             _context = context;
         }
@@ -24,8 +24,7 @@ namespace Infrastructure.Persistence.Repositories.Categories
             CancellationToken ct)
         {
             return await _context.Categories
-                .FirstOrDefaultAsync(c => c.Id == categoryId
-                && c.TenantId == tenantId, ct);
+                .FirstOrDefaultAsync(c => c.Id == categoryId, ct);
         }
     }
 }

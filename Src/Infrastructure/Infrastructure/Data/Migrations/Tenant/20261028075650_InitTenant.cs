@@ -3,16 +3,20 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace Infrastructure.Data.Migrations.Tenant
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitTenant : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "tenant-template");
+
             migrationBuilder.CreateTable(
                 name: "Categories",
+                schema: "tenant-template",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -28,26 +32,25 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "Notifications",
+                schema: "tenant-template",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    FirstName = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    LastName = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
-                    Password = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Role = table.Column<int>(type: "integer", nullable: false),
-                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    Content = table.Column<string>(type: "text", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Notifications", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Tickets",
+                schema: "tenant-template",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -70,25 +73,41 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Tickets_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "tenant-template",
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketAuditEntries",
+                schema: "tenant-template",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TicketId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ActorUserId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Action = table.Column<int>(type: "integer", nullable: false),
+                    OldValue = table.Column<int>(type: "integer", nullable: true),
+                    NewValue = table.Column<int>(type: "integer", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketAuditEntries", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Tickets_Users_AssignedAgentId",
-                        column: x => x.AssignedAgentId,
-                        principalTable: "Users",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Tickets_Users_RequesterId",
-                        column: x => x.RequesterId,
-                        principalTable: "Users",
+                        name: "FK_TicketAuditEntries_Tickets_TicketId",
+                        column: x => x.TicketId,
+                        principalSchema: "tenant-template",
+                        principalTable: "Tickets",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
                 name: "TicketReplies",
+                schema: "tenant-template",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -104,52 +123,95 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_TicketReplies_Tickets_TicketId",
                         column: x => x.TicketId,
+                        principalSchema: "tenant-template",
                         principalTable: "Tickets",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_TicketReplies_Users_AuthorId",
-                        column: x => x.AuthorId,
-                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TicketAttachmentReply",
+                schema: "tenant-template",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    TicketReplyId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PublicImageUrl = table.Column<string>(type: "text", nullable: false),
+                    PublicImageId = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketAttachmentReply", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketAttachmentReply_TicketReplies_TicketReplyId",
+                        column: x => x.TicketReplyId,
+                        principalSchema: "tenant-template",
+                        principalTable: "TicketReplies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Notifications_UserId",
+                schema: "tenant-template",
+                table: "Notifications",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketAttachmentReply_TicketReplyId",
+                schema: "tenant-template",
+                table: "TicketAttachmentReply",
+                column: "TicketReplyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketAuditEntries_ActorUserId",
+                schema: "tenant-template",
+                table: "TicketAuditEntries",
+                column: "ActorUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketAuditEntries_TicketId",
+                schema: "tenant-template",
+                table: "TicketAuditEntries",
+                column: "TicketId");
+
             migrationBuilder.CreateIndex(
                 name: "IX_TicketReplies_AuthorId",
+                schema: "tenant-template",
                 table: "TicketReplies",
                 column: "AuthorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_TicketReplies_TicketId",
+                schema: "tenant-template",
                 table: "TicketReplies",
                 column: "TicketId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_AssignedAgentId",
+                schema: "tenant-template",
                 table: "Tickets",
                 column: "AssignedAgentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_CategoryId",
+                schema: "tenant-template",
                 table: "Tickets",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_RequesterId",
+                schema: "tenant-template",
                 table: "Tickets",
                 column: "RequesterId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tickets_TicketNumber",
+                schema: "tenant-template",
                 table: "Tickets",
                 column: "TicketNumber",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
-                column: "Email",
                 unique: true);
         }
 
@@ -157,16 +219,28 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "TicketReplies");
+                name: "Notifications",
+                schema: "tenant-template");
 
             migrationBuilder.DropTable(
-                name: "Tickets");
+                name: "TicketAttachmentReply",
+                schema: "tenant-template");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "TicketAuditEntries",
+                schema: "tenant-template");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "TicketReplies",
+                schema: "tenant-template");
+
+            migrationBuilder.DropTable(
+                name: "Tickets",
+                schema: "tenant-template");
+
+            migrationBuilder.DropTable(
+                name: "Categories",
+                schema: "tenant-template");
         }
     }
 }

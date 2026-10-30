@@ -19,6 +19,7 @@ namespace Application.Features.Tenants.Commands
         private readonly ITenantMembershipWriteRepository _tenantMembershipWriteRepository;
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly ISchemaNameGenerator _schemaNameGenerator;
+        private readonly ITenantProvisioningService _tenantProvisioningService;
         private readonly IUnitOfWork _unitOfWork;
 
         public RegisterCompanyCommandHandler(
@@ -29,6 +30,7 @@ namespace Application.Features.Tenants.Commands
             ITenantMembershipWriteRepository tenantMembershipWriteRepository,
             IUserWriteRepository userWriteRepository,
             ISchemaNameGenerator schemaNameGenerator,
+            ITenantProvisioningService tenantProvisioningService,
             IUnitOfWork unitOfWork)
         {
             _tenantReadRepository = tenantReadRepository;
@@ -38,6 +40,7 @@ namespace Application.Features.Tenants.Commands
             _tenantMembershipWriteRepository = tenantMembershipWriteRepository;
             _userWriteRepository = userWriteRepository;
             _schemaNameGenerator = schemaNameGenerator;
+            _tenantProvisioningService = tenantProvisioningService;
             _unitOfWork = unitOfWork;
         }
 
@@ -78,6 +81,8 @@ namespace Application.Features.Tenants.Commands
             _tenantMembershipWriteRepository.Add(tenantMembership);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
+            // Only set up or  initialize the physical schema after SaveChanges succeeds
+            await _tenantProvisioningService.ProvisionAsync(schemaName, cancellationToken);
             return Result<Guid>.Success(tenant.Id);
         }
     }

@@ -47,14 +47,14 @@ namespace Application.Features.Tickets.Commands
             var dueAt = DateTime.UtcNow.AddHours(_slaPolicy.ResolutionHours);
 
             var ticket = Ticket.Create(
-                _currentUserService.TenantId,
                 ticketNumber,
                 request.Title,
                 request.Description,
                 request.Priority,
                 request.CategoryId,
                 _currentUserService.UserId,
-                dueAt);
+                dueAt,
+                _currentUserService.TenantId);
 
             _ticketWriteRepository.Add(ticket);
             await _unitOfWork.SaveChangesAsync(cancellationToken);

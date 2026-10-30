@@ -9,8 +9,8 @@ namespace Infrastructure.Persistence.Repositories.Users
 {
     public sealed class UserReadRepository : IUserReadRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public UserReadRepository(SupportFlowDbContext context)
+        private readonly SharedDbContext _context;
+        public UserReadRepository(SharedDbContext context)
         {
             _context = context;
         }

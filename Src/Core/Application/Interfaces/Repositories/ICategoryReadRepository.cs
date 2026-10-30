@@ -12,12 +12,10 @@ namespace Application.Interfaces.Repositories
 
         Task<bool> IsCategoryNameExist(
             string categoryName, 
-            Guid tenantId,
             Guid? excludeCategoryId, 
             CancellationToken ct);
 
         Task<PaginatedResult<CategoryResponse>> GetAllCategoriesAsync(
-            Guid tenantId,
             int page,
             int pageSize,
             CancellationToken ct);

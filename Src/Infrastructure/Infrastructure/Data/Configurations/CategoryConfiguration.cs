@@ -16,11 +16,6 @@ namespace Infrastructure.Data.Configurations
             builder.Property(category => category.Description)
                 .IsRequired(false);
 
-            builder.HasOne<Tenant>()
-                .WithMany()
-                .HasForeignKey(category => category.TenantId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             builder.HasQueryFilter(category => category.DeletedAt == null);
         }
     }

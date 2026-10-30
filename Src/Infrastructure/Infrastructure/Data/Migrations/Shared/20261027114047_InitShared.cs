@@ -3,25 +3,16 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Infrastructure.Migrations
+namespace Infrastructure.Data.Migrations.Shared
 {
     /// <inheritdoc />
-    public partial class AddTenantAndTenantMembershipEntity : Migration
+    public partial class InitShared : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Role",
-                table: "Users");
-
             migrationBuilder.EnsureSchema(
                 name: "public");
-
-            migrationBuilder.RenameTable(
-                name: "Users",
-                newName: "Users",
-                newSchema: "public");
 
             migrationBuilder.CreateTable(
                 name: "Tenants",
@@ -39,6 +30,26 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tenants", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "public",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    FirstName = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    LastName = table.Column<string>(type: "character varying(250)", maxLength: 250, nullable: false),
+                    Password = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    PlatformRole = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -73,17 +84,17 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_TenantMemberships_TenantId",
+                name: "IX_TenantMemberships_TenantId_UserId",
                 schema: "public",
                 table: "TenantMemberships",
-                column: "TenantId");
+                columns: new[] { "TenantId", "UserId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_TenantMemberships_UserId_TenantId",
+                name: "IX_TenantMemberships_UserId",
                 schema: "public",
                 table: "TenantMemberships",
-                columns: new[] { "UserId", "TenantId" },
-                unique: true);
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tenants_Identifier",
@@ -98,6 +109,13 @@ namespace Infrastructure.Migrations
                 table: "Tenants",
                 column: "SchemaName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                schema: "public",
+                table: "Users",
+                column: "Email",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -111,17 +129,9 @@ namespace Infrastructure.Migrations
                 name: "Tenants",
                 schema: "public");
 
-            migrationBuilder.RenameTable(
+            migrationBuilder.DropTable(
                 name: "Users",
-                schema: "public",
-                newName: "Users");
-
-            migrationBuilder.AddColumn<int>(
-                name: "Role",
-                table: "Users",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+                schema: "public");
         }
     }
 }

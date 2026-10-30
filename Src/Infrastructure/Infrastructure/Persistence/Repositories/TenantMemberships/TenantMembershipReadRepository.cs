@@ -8,9 +8,9 @@ namespace Infrastructure.Persistence.Repositories.TenantMemberships
 {
     public sealed class TenantMembershipReadRepository : ITenantMembershipReadRepository
     {
-        private readonly SupportFlowDbContext _context;
+        private readonly SharedDbContext _context;
 
-        public TenantMembershipReadRepository(SupportFlowDbContext context)
+        public TenantMembershipReadRepository(SharedDbContext context)
         {
             _context = context;
         }

@@ -8,8 +8,8 @@ namespace Infrastructure.Persistence.Repositories.Tenants
 {
     public sealed class TenantWriteRepository : ITenantWriteRepository
     {
-        private readonly SupportFlowDbContext _context;
-        public TenantWriteRepository(SupportFlowDbContext context)
+        private readonly SharedDbContext _context;
+        public TenantWriteRepository(SharedDbContext context)
         {
             _context = context;
         }

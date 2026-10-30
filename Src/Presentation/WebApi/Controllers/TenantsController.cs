@@ -61,9 +61,5 @@ namespace WebApi.Controllers
             return this.ToActionResult(result);
 
         }
-
-        // to do
-        // deact and activate tenant
-
     }
 }
