@@ -17,14 +17,14 @@ public class TicketTests
 
     private static Ticket CreateTicket() =>
         Ticket.Create(
-            TenantId,
             "TCK-0001",
             "Login issue",
             "Cannot login to the portal",
             DefaultPriority,
             CategoryId,
             RequesterId,
-            dueAt: null);
+            dueAt: null,
+            tenantId: TenantId);
 
     private static Ticket CreateTicketIn(TicketStatus status)
     {
@@ -104,7 +104,6 @@ public class TicketTests
     {
         var ticket = CreateTicket();
 
-        Assert.Equal(TenantId, ticket.TenantId);
         Assert.Equal("TCK-0001", ticket.TicketNumber);
         Assert.Equal("Login issue", ticket.Title);
         Assert.Equal("Cannot login to the portal", ticket.Description);
@@ -118,17 +117,25 @@ public class TicketTests
     }
 
     [Fact]
+    public void Create_RaisesTicketCreatedDomainEvent()
+    {
+        var ticket = CreateTicket();
+
+        Assert.Single(ticket.DomainEvents.OfType<TicketCreatedDomainEvent>());
+    }
+
+    [Fact]
     public void Create_TrimsTextFields()
     {
         var ticket = Ticket.Create(
-            TenantId,
             "  TCK-0001  ",
             "  Login issue  ",
             "  Cannot login  ",
             DefaultPriority,
             CategoryId,
             RequesterId,
-            dueAt: null);
+            dueAt: null,
+            tenantId: TenantId);
 
         Assert.Equal("TCK-0001", ticket.TicketNumber);
         Assert.Equal("Login issue", ticket.Title);
@@ -145,14 +152,14 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
-                TenantId,
                 value!,
                 "Login issue",
                 "Cannot login",
                 DefaultPriority,
                 CategoryId,
                 RequesterId,
-                dueAt: null));
+                dueAt: null,
+                tenantId: TenantId));
     }
 
     [Theory]
@@ -164,14 +171,14 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
-                TenantId,
                 "TCK-0001",
                 value!,
                 "Cannot login",
                 DefaultPriority,
                 CategoryId,
                 RequesterId,
-                dueAt: null));
+                dueAt: null,
+                tenantId: TenantId));
     }
 
     [Theory]
@@ -183,28 +190,28 @@ public class TicketTests
     {
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
-                TenantId,
                 "TCK-0001",
                 "Login issue",
                 value!,
                 DefaultPriority,
                 CategoryId,
                 RequesterId,
-                dueAt: null));
+                dueAt: null,
+                tenantId: TenantId));
     }
 
     [Fact]
     public void Create_WithTextOfExactlyThreeCharacters_Succeeds()
     {
         var ticket = Ticket.Create(
-            TenantId,
             "TCK",
             "abc",
             "xyz",
             DefaultPriority,
             CategoryId,
             RequesterId,
-            dueAt: null);
+            dueAt: null,
+            tenantId: TenantId);
 
         Assert.Equal("abc", ticket.Title);
     }
@@ -216,14 +223,14 @@ public class TicketTests
 
         Assert.Throws<DomainRuleViolationException>(() =>
             Ticket.Create(
-                TenantId,
                 "TCK-0001",
                 "Login issue",
                 "Cannot login",
                 invalidPriority,
                 CategoryId,
                 RequesterId,
-                dueAt: null));
+                dueAt: null,
+                tenantId: TenantId));
     }
 
     // ---------- AssignAgent ----------
