@@ -1,15 +1,12 @@
 using Application;
-using Application.Interfaces.Services;
 using Domain.Exceptions;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Serilog;
 using WebApi.Middlewares;
 using WebAPI;
-using WebAPI.Middlewares;
 
 
 var builder = WebApplication.CreateBuilder(args);
