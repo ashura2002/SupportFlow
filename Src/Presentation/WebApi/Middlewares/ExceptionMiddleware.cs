@@ -64,7 +64,8 @@ public sealed class ExceptionMiddleware(
                 .GroupBy(error => error.PropertyName)
                 .ToDictionary(
                     group => group.Key,
-                    group => group.Select(error => error.ErrorMessage).ToArray());
+                    group => group.Select(error => 
+                    error.ErrorMessage).ToArray());
 
             problemDetails = new ValidationProblemDetails(errors)
             {

@@ -12,18 +12,18 @@ namespace Application.Features.Categories.Commands
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICategoryReadRepository _categoryReadRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
 
         public UpdateCategoryCommandHandler(
             ICategoryWriteRepository categoryWriteRepository, 
             ICategoryReadRepository categoryReadRepository,
             ICurrentUserService currentUserService,
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _categoryWriteRepository = categoryWriteRepository;
             _categoryReadRepository = categoryReadRepository;
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
         public async Task<Result> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
@@ -45,7 +45,7 @@ namespace Application.Features.Categories.Commands
             category.UpdateCategoryName(request.Name);
             category.UpdateDescription(request.Description);
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }
     }

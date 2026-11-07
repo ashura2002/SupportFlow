@@ -13,7 +13,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    [RequireTenant]
+    [RequireTenantAttribute]
     public class NotificationsController : ControllerBase
     {
         private readonly IMediator _mediator;

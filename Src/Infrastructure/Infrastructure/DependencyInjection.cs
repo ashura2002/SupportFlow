@@ -3,6 +3,7 @@ using Application.Interfaces.Services;
 using Application.Interfaces.Uof;
 using CloudinaryDotNet;
 using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Infrastructure.Events;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories.Categories;
@@ -40,7 +41,8 @@ namespace Infrastructure
 
             services.AddScoped<IUserWriteRepository, UserWriteRepository>();
             services.AddScoped<IUserReadRepository, UserReadRepository>();
-            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ISharedUnitOfWork, SharedUnitOfWork>();
+            services.AddScoped<ITenantUnitOfWork, TenantUnitOfWork>();
             services.AddScoped<ITicketWriteRepository, TicketWriteRepository>();
             services.AddScoped<ITicketReadRepository, TicketReadRepository>();
             services.AddScoped<ICategoryReadRepository, CategoryReadRepository>();

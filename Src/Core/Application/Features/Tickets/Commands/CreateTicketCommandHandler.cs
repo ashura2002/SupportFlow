@@ -11,7 +11,7 @@ namespace Application.Features.Tickets.Commands
     public sealed class CreateTicketCommandHandler : IRequestHandler<CreateTicketCommand, Result<Guid>>
     {
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
         private readonly ITicketWriteRepository _ticketWriteRepository;
         private readonly ITicketNumberGeneratorService _ticketNumberGeneratorService;
         private readonly ICategoryReadRepository _categoryReadRepository;
@@ -19,14 +19,14 @@ namespace Application.Features.Tickets.Commands
 
         public CreateTicketCommandHandler(
             ICurrentUserService currentUserService,
-            IUnitOfWork unitOfWork,
+            ITenantUnitOfWork tenantUnitOfWork,
             ITicketWriteRepository ticketWriteRepository,
             ITicketNumberGeneratorService ticketNumberGeneratorService,
             ICategoryReadRepository categoryReadRepository,
             ISlaPolicy slaPolicy)
         {
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
             _ticketNumberGeneratorService = ticketNumberGeneratorService;
             _categoryReadRepository = categoryReadRepository;
@@ -57,7 +57,7 @@ namespace Application.Features.Tickets.Commands
                 _currentUserService.TenantId);
 
             _ticketWriteRepository.Add(ticket);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             return Result<Guid>.Success(ticket.Id);
 
         }

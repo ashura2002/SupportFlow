@@ -8,7 +8,8 @@ namespace Application.Interfaces.Services
         string GenerateAccessToken(
             User user,
             Guid tenantId,
-            TenantRoles roles);
+            TenantRoles roles,
+            string schemaName);
 
         string GeneratePlatformAccessToken(User user);
     }

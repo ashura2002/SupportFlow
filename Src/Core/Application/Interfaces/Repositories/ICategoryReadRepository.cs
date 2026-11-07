@@ -16,6 +16,7 @@ namespace Application.Interfaces.Repositories
             CancellationToken ct);
 
         Task<PaginatedResult<CategoryResponse>> GetAllCategoriesAsync(
+            Guid tenantId,
             int page,
             int pageSize,
             CancellationToken ct);

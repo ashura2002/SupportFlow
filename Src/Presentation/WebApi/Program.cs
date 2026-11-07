@@ -3,6 +3,7 @@ using Domain.Exceptions;
 using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using WebApi.Middlewares;

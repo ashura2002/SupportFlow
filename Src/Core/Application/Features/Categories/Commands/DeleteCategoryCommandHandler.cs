@@ -11,16 +11,16 @@ namespace Application.Features.Categories.Commands
     {
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
 
         public DeleteCategoryCommandHandler(
             ICategoryWriteRepository categoryWriteRepository,
             ICurrentUserService currentUserService,
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _categoryWriteRepository = categoryWriteRepository;
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
         public async Task<Result> Handle(DeleteCategoryCommand request, CancellationToken cancellationToken)
@@ -33,7 +33,7 @@ namespace Application.Features.Categories.Commands
                 return Result.Failure(CategoryErrors.CategoryNotFound);
 
             category.SoftDelete();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }
     }

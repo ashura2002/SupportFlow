@@ -9,4 +9,5 @@ public sealed record DeletedUserResponse(
         string Email,
         TenantRoles? Role,
         string? TenantName,
-        DateTime? DeletedAt);
+        DateTime? DeletedAt,
+        string? TenantIdentifier);

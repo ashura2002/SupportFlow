@@ -20,7 +20,7 @@ namespace Application.Features.Tenants.Commands
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly ISchemaNameGenerator _schemaNameGenerator;
         private readonly ITenantProvisioningService _tenantProvisioningService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
 
         public RegisterCompanyCommandHandler(
             ITenantReadRepository tenantReadRepository,
@@ -31,7 +31,7 @@ namespace Application.Features.Tenants.Commands
             IUserWriteRepository userWriteRepository,
             ISchemaNameGenerator schemaNameGenerator,
             ITenantProvisioningService tenantProvisioningService,
-            IUnitOfWork unitOfWork)
+            ISharedUnitOfWork unitOfWork)
         {
             _tenantReadRepository = tenantReadRepository;
             _userReadRepository = userReadRepository;

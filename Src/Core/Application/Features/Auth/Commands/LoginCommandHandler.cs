@@ -76,7 +76,8 @@ namespace Application.Features.Auth.Command
             var accessToken = _jwtService.GenerateAccessToken(
                 user,
                 tenant.Id,
-                membership.TenantRoles);
+                membership.TenantRoles,
+                tenant.SchemaName);
 
             return Result<AuthResponse>.Success(
                 new AuthResponse(accessToken));

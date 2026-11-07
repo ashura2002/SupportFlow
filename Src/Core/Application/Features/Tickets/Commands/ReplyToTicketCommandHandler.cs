@@ -13,7 +13,7 @@ namespace Application.Features.Tickets.Commands
     public sealed class ReplyToTicketCommandHandler : IRequestHandler<ReplyToTicketCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
         private readonly ITicketWriteRepository _ticketWriteRepository;
         private readonly ITicketReplyWriteRepository _ticketReplyWriteRepository;
         private readonly IImageStorageService _imageStorageService;
@@ -21,14 +21,14 @@ namespace Application.Features.Tickets.Commands
 
         public ReplyToTicketCommandHandler(
             ICurrentUserService currentUserService,
-            IUnitOfWork unitOfWork,
+            ITenantUnitOfWork tenantUnitOfWork,
             ITicketWriteRepository ticketWriteRepository,
             ITicketReplyWriteRepository ticketReplyWriteRepository,
             IImageStorageService imageStorageService,
             ILogger<ReplyToTicketCommandHandler> logger)
         {
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
             _ticketReplyWriteRepository = ticketReplyWriteRepository;
             _imageStorageService = imageStorageService;
@@ -103,7 +103,7 @@ namespace Application.Features.Tickets.Commands
 
             try
             {
-                await _unitOfWork.SaveChangesAsync(cancellationToken);
+                await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             }
             catch (Exception ex)
             {

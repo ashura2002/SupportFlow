@@ -11,9 +11,9 @@ namespace Application.Features.Users.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
 
-        public DeleteAccountCommandHandler(ICurrentUserService currentUserService, IUserWriteRepository userWriteRepository, IUnitOfWork unitOfWork)
+        public DeleteAccountCommandHandler(ICurrentUserService currentUserService, IUserWriteRepository userWriteRepository, ISharedUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _userWriteRepository = userWriteRepository;

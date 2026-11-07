@@ -16,7 +16,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize]
-    [RequireTenant]
+    [RequireTenantAttribute]
     public class TicketsController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -77,7 +77,7 @@ namespace WebApi.Controllers
 
 
         [Authorize(Roles = TenantRoles.Requester)]
-        [HttpGet("my-tickets{ticketId:guid}/details")]
+        [HttpGet("my-tickets/{ticketId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
         public async Task<ActionResult<TicketDetailsResponse>> GetMyTicketById([FromRoute] Guid ticketId, CancellationToken ct)
         {

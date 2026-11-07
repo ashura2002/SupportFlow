@@ -2,16 +2,16 @@
 using Application.Interfaces.Uof;
 using Domain.Entities;
 using Domain.Events;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 
 namespace Infrastructure.Persistence
 {
-    internal class UnitOfWork : IUnitOfWork
+    internal class SharedUnitOfWork : ISharedUnitOfWork
     {
         private readonly SharedDbContext _context;
         private readonly IEventDispatcher _eventDispatcher;
 
-        public UnitOfWork(SharedDbContext context, IEventDispatcher eventDispatcher)
+        public SharedUnitOfWork(SharedDbContext context, IEventDispatcher eventDispatcher)
         {
             _context = context;
             _eventDispatcher = eventDispatcher;

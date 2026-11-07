@@ -1,6 +1,6 @@
 ﻿using Application.Interfaces.Repositories;
 using Application.ResponseDTO;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories.Categories
@@ -14,6 +14,7 @@ namespace Infrastructure.Persistence.Repositories.Categories
         }
 
         public async Task<PaginatedResult<CategoryResponse>> GetAllCategoriesAsync(
+            Guid tenantId,
             int page,
             int pageSize,
             CancellationToken ct)
@@ -23,6 +24,7 @@ namespace Infrastructure.Persistence.Repositories.Categories
                 .CountAsync(ct);
 
             var categories = await query
+                .Where(c => c.TenantId == tenantId)
                 .OrderByDescending(c => c.Name)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
@@ -46,7 +48,7 @@ namespace Infrastructure.Persistence.Repositories.Categories
         {
             return await _context.Categories
                 .AsNoTracking()
-                .Where(c => c.Id == categoryId)
+                .Where(c => c.Id == categoryId && c.TenantId == tenantId)
                 .Select(c => new CategoryResponse(
                     c.Id,
                     c.Name,

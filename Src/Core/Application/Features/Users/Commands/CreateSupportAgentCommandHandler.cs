@@ -14,7 +14,7 @@ namespace Application.Features.Users.Commands
     {
         private readonly IUserWriteRepository _userWriteRepository;
         private readonly IUserReadRepository _userReadRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
         private readonly ITenantMembershipWriteRepository _tenantMembershipWriteRepository;
         private readonly ICurrentUserService _currentUserService;
@@ -22,7 +22,7 @@ namespace Application.Features.Users.Commands
         public CreateSupportAgentCommandHandler(
             IUserWriteRepository userWriteRepository,
             IUserReadRepository userReadRepository,
-            IUnitOfWork unitOfWork,
+            ISharedUnitOfWork unitOfWork,
             IPasswordService passwordService,
             ITenantMembershipWriteRepository tenantMembershipWriteRepository,
             ICurrentUserService currentUserService)

@@ -6,8 +6,6 @@ namespace Infrastructure.Services
     {
         public string SchemaName { get; private set; } = string.Empty;
 
-        public bool IsResolved => !string.IsNullOrWhiteSpace(SchemaName);
-
         public void SetTenant(string schemaName)
         {
             if (string.IsNullOrWhiteSpace(schemaName))

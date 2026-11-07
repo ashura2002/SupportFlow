@@ -1,7 +1,7 @@
 ﻿
 using Application.Interfaces.Repositories;
 using Application.ResponseDTO;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories.TenantMemberships

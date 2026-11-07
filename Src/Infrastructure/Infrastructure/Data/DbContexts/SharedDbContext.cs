@@ -2,7 +2,7 @@
 using Infrastructure.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Data
+namespace Infrastructure.Data.DbContexts
 {
     public sealed class SharedDbContext(DbContextOptions<SharedDbContext> options) : DbContext(options)
     {

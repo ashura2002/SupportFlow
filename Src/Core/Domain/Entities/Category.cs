@@ -7,25 +7,34 @@ namespace Domain.Entities
         public string Name { get; private set; }
         public string? Description { get; private set; }
         public DateTime? DeletedAt { get; private set; }
+        public Guid TenantId { get; private set; }
 
 
         private Category(
             string name,
-            string? description)
+            string? description,
+            Guid tenantId)
         {
             Name = name;
             Description = description;
+            TenantId = tenantId;
         }
 
         public static Category Create(
             string name,
-            string? description)
+            string? description,
+            Guid tenantId)
         {
             name = ValidateCategoryName(name);
             description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+
+            if (tenantId == Guid.Empty)
+                throw new DomainRuleViolationException("Tenant Id cannot be empty.");
+
             return new Category(
                 name,
-                description);
+                description,
+                tenantId);
         }
 
         public void SoftDelete()

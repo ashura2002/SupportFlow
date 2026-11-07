@@ -1,5 +1,5 @@
 ﻿using Application.Interfaces.Services;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -20,25 +20,45 @@ namespace Infrastructure.Services
 
         public async Task ProvisionAsync(string schemaName, CancellationToken cancellationToken)
         {
-            // Validated above against a strict whitelist pattern — safe from
-            // injection. Schema names are identifiers, not values, so they
-            // can't be parameterized the way ExecuteSqlAsync expects.
             ValidateSchemaName(schemaName);
             _tenantContext.SetTenant(schemaName);
 
-            // create a real schema in postgresql
+            await using var transaction = await _tenantDbContext.Database
+                .BeginTransactionAsync(cancellationToken);
+
+            try
+            {
 #pragma warning disable EF1002
-            await _tenantDbContext.Database.ExecuteSqlRawAsync(
-                $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"", cancellationToken);
+                await _tenantDbContext.Database.ExecuteSqlRawAsync(
+                    $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"", cancellationToken);
 #pragma warning restore EF1002
 
-            // get all sql pending tenant migrations (still tenant-template value) 
-            var migrator = _tenantDbContext.GetService<IMigrator>();
-            var script = migrator.GenerateScript();
+                var migrator = _tenantDbContext.GetService<IMigrator>();
 
-            // replace placeholder schema to real schema name
-            var tenantScript = script.Replace("tenant-template", schemaName);
-            await _tenantDbContext.Database.ExecuteSqlRawAsync(tenantScript, cancellationToken);
+                // NoTransactions BEGIN/COMMIT
+                // because we manage the transaction boundary here
+                var script = migrator.GenerateScript(
+                    options: MigrationsSqlGenerationOptions.NoTransactions);
+
+                var tenantScript = script.Replace("tenant-template", schemaName);
+
+                await _tenantDbContext.Database.ExecuteSqlRawAsync(tenantScript, cancellationToken);
+
+#pragma warning disable EF1002
+                await _tenantDbContext.Database.ExecuteSqlRawAsync(
+                    $"""
+                CREATE SEQUENCE IF NOT EXISTS "{schemaName}".ticket_number_seq
+                START WITH 1 INCREMENT BY 1;
+            """, cancellationToken);
+#pragma warning restore EF1002
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(cancellationToken);
+                throw;
+            }
         }
 
         private static void ValidateSchemaName(string schemaName)
