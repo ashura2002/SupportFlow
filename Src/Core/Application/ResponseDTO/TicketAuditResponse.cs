@@ -3,7 +3,7 @@ using Domain.Enums;
 namespace Application.ResponseDTO;
 
 public sealed record TicketAuditResponse(
-    Guid TicketAuditId,
+    Guid Id,
     Guid? ActorUserId,
     TicketAuditAction Action,
     TicketStatus? OldValue,
