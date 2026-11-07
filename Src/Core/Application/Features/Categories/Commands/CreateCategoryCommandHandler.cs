@@ -13,17 +13,17 @@ namespace Application.Features.Categories.Commands
         private readonly ICategoryWriteRepository _categoryWriteRepository;
         private readonly ICurrentUserService _currentUserService;
         private readonly ICategoryReadRepository _categoryReadRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
         public CreateCategoryCommandHandler(
             ICategoryWriteRepository categoryWriteRepository,
             ICurrentUserService currentUserService,
             ICategoryReadRepository categoryReadRepository,
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _categoryWriteRepository = categoryWriteRepository;
             _currentUserService = currentUserService;
             _categoryReadRepository = categoryReadRepository;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
         public async Task<Result<Guid>> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
@@ -36,9 +36,10 @@ namespace Application.Features.Categories.Commands
 
             var category = Category.Create(
                 request.Name,
-                request.Description);
+                request.Description,
+                _currentUserService.TenantId);
             _categoryWriteRepository.Add(category);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result<Guid>.Success(category.Id);
         }

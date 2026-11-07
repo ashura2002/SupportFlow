@@ -10,16 +10,16 @@ namespace Application.Features.Tickets.Commands
     public sealed class StartProgressAfterReopenCommandHandler : IRequestHandler<StartProgressAfterReopenCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
         private readonly ITicketWriteRepository _ticketWriteRepository;
 
         public StartProgressAfterReopenCommandHandler(
             ICurrentUserService currentUserService, 
-            IUnitOfWork unitOfWork, 
+            ITenantUnitOfWork tenantUnitOfWork, 
             ITicketWriteRepository ticketWriteRepository)
         {
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
         }
 
@@ -38,7 +38,7 @@ namespace Application.Features.Tickets.Commands
                 return Result.Failure(TicketErrors.NotAssignedAgent);
             ticket.StartProgressAfterReopen();
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }
     }

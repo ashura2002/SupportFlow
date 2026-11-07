@@ -12,13 +12,13 @@ namespace Application.Features.Tickets.Commands
     public sealed class AssignAgentCommandHandler : IRequestHandler<AssignAgentCommand, Result>
     {
         private readonly ITicketWriteRepository _ticketWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _unitOfWork;
         private readonly IUserReadRepository _userReadRepository;
         private readonly ICurrentUserService _currentUserService;
 
         public AssignAgentCommandHandler(
             ITicketWriteRepository ticketWriteRepository,
-            IUnitOfWork unitOfWork, 
+            ITenantUnitOfWork unitOfWork,
             IUserReadRepository userReadRepository,
             ICurrentUserService currentUserService)
         {

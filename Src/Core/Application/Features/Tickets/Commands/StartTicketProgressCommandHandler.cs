@@ -11,16 +11,16 @@ namespace Application.Features.Tickets.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly ITicketWriteRepository _ticketWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
 
         public StartTicketProgressCommandHandler(
             ICurrentUserService currentUserService, 
             ITicketWriteRepository ticketWriteRepository,
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _currentUserService = currentUserService;
             _ticketWriteRepository = ticketWriteRepository;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
 
@@ -39,7 +39,7 @@ namespace Application.Features.Tickets.Commands
                 return Result.Failure(TicketErrors.NotAssignedAgent);
 
             ticket.StartProgress();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }

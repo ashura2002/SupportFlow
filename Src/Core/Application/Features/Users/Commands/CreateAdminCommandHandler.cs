@@ -18,7 +18,7 @@ namespace Application.Features.Users.Commands
         private readonly IUserReadRepository _userReadRepository;
         private readonly ITenantMembershipWriteRepository _tenantMembershipWriteRepository;
         private readonly IPasswordService _passwordService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
 
         public CreateAdminCommandHandler(
             ICurrentUserService currentUserService,
@@ -26,7 +26,7 @@ namespace Application.Features.Users.Commands
             IUserReadRepository userReadRepository,
             ITenantMembershipWriteRepository tenantMembershipWriteRepository,
             IPasswordService passwordService,
-            IUnitOfWork unitOfWork)
+            ISharedUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _userWriteRepository = userWriteRepository;

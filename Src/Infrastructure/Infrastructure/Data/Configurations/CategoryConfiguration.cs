@@ -16,6 +16,9 @@ namespace Infrastructure.Data.Configurations
             builder.Property(category => category.Description)
                 .IsRequired(false);
 
+            builder.Property(category => category.TenantId)
+                .IsRequired();
+
             builder.HasQueryFilter(category => category.DeletedAt == null);
         }
     }

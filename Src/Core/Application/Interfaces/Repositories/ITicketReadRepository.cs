@@ -5,7 +5,6 @@ namespace Application.Interfaces.Repositories
     public interface ITicketReadRepository
     {
         Task<PaginatedResult<TicketResponse>> GetAllTicketsAsync(
-            Guid tenantId,
             int page,
             int pageSize,
             CancellationToken ct);
@@ -14,7 +13,6 @@ namespace Application.Interfaces.Repositories
 
         Task<TicketDetailsResponse?> GetTicketByIdAsync(
             Guid ticketId,
-            Guid tenantId,
             CancellationToken ct);
 
         Task<PaginatedResult<TicketResponse>> GetAllMyTicketsAsync(Guid userId, int page, int pageSize, CancellationToken ct);

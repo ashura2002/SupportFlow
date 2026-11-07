@@ -31,11 +31,22 @@ namespace WebAPI
                     In = ParameterLocation.Header,
                     Description = "JWT Authorization header using the Bearer scheme."
                 });
+
+                opt.AddSecurityDefinition("X-Tenant-Id", new OpenApiSecurityScheme
+                {
+                    Name = "X-Tenant-Id",
+                    Type = SecuritySchemeType.ApiKey,
+                    In = ParameterLocation.Header,
+                    Description = "Tenant identifier (e.g. acme-corp)"
+                });
+
                 opt.AddSecurityRequirement(docs => new OpenApiSecurityRequirement
                 {
-                    [new OpenApiSecuritySchemeReference("bearer", docs)] = new()
+                    [new OpenApiSecuritySchemeReference("bearer", docs)] = new(),
+                    [new OpenApiSecuritySchemeReference("X-Tenant-Id", docs)] = new()
                 });
-            }); ;
+
+            });
 
 
             return services;

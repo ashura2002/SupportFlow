@@ -11,16 +11,16 @@ namespace Application.Features.Tickets.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly ITicketWriteRepository _ticketWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
 
         public WaitForUserCommandHandler(
             ICurrentUserService currentUserService,
             ITicketWriteRepository ticketWriteRepository, 
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _currentUserService = currentUserService;
             _ticketWriteRepository = ticketWriteRepository;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
         public async Task<Result> Handle(WaitForUserCommand request, CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ namespace Application.Features.Tickets.Commands
                 return Result.Failure(TicketErrors.NotAssignedAgent);
 
             ticket.WaitForUser();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }

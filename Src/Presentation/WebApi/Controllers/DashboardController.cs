@@ -12,7 +12,7 @@ namespace WebApi.Controllers
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = TenantRoles.TenantAdmin)]
-    [RequireTenant]
+    [RequireTenantAttribute]
     public class DashboardController : ControllerBase
     {
         private readonly IMediator _mediator;

@@ -1,7 +1,8 @@
 ﻿
+
 namespace Application.Interfaces.Uof
 {
-    public interface IUnitOfWork
+    public interface ITenantUnitOfWork
     {
         Task SaveChangesAsync(CancellationToken ct);
     }

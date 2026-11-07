@@ -23,29 +23,26 @@ namespace WebApi.Middlewares
         public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             var endpoint = context.GetEndpoint();
-            var requiresTenant = endpoint?
-                .Metadata
-                .GetMetadata<RequireTenantAttribute>() is not null;
+            var requireTenant = endpoint?.Metadata.GetMetadata<RequireTenantAttribute>() is not null;
 
-
-            if (!requiresTenant)
+            if (!requireTenant)
             {
                 await next(context);
                 return;
             }
 
-            var identifier = context.Request.Headers["X-Tenant-Id"].FirstOrDefault();
-            _logger.LogInformation("Tenant Identifier - {Identifier}", identifier);
 
-            if (string.IsNullOrWhiteSpace(identifier))
+            var tenantIdentifier = context.Request.Headers["X-Tenant-Id"].FirstOrDefault();
+            _logger.LogInformation("Tenant Identifier - {Identifier}", tenantIdentifier);
+
+            if (string.IsNullOrWhiteSpace(tenantIdentifier))
             {
                 context.Response.StatusCode = StatusCodes.Status400BadRequest;
                 await context.Response.WriteAsync("Missing X-Tenant-id header.");
                 return;
             }
 
-    
-            var tenant = await _tenantReadRepository.GetActiveTenantByIdentifierAsync(identifier, context.RequestAborted);
+            var tenant = await _tenantReadRepository.GetActiveTenantByIdentifierAsync(tenantIdentifier, context.RequestAborted);
             if (tenant is null)
             {
                 context.Response.StatusCode = StatusCodes.Status404NotFound;

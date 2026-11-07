@@ -11,12 +11,12 @@ namespace Application.Features.Tenants.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly ITenantWriteRepository _tenantWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
 
         public UpdateNameCommandHandler(
             ICurrentUserService currentUserService,
             ITenantWriteRepository tenantWriteRepository,
-            IUnitOfWork unitOfWork)
+            ISharedUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _tenantWriteRepository = tenantWriteRepository;

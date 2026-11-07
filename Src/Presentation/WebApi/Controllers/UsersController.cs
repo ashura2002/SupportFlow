@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
+using WebApi.Attributes;
 using WebApi.Constant;
 using WebApi.Extensions;
 using WebApi.Request;
@@ -23,6 +24,7 @@ namespace WebApi.Controllers
             _mediator = mediator;
         }
 
+        [RequireTenantAttribute]
         [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost("requester")]
         public async Task<ActionResult<Guid>> CreateRequester([FromBody] CreateRequesterRequest request, CancellationToken ct)
@@ -38,6 +40,7 @@ namespace WebApi.Controllers
 
 
 
+        [RequireTenantAttribute]
         [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost("supportAgent")]
         public async Task<ActionResult<Guid>> CreateSupportAgent([FromBody] CreateSupportAgentRequest request, CancellationToken ct)
@@ -49,6 +52,7 @@ namespace WebApi.Controllers
 
 
 
+
         [HttpPut("password")]
         public async Task<ActionResult> UpdatePassword([FromBody] UpdatePasswordRequest request, CancellationToken ct)
         {
@@ -56,7 +60,6 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command, ct);
             return this.ToActionResult(result);
         }
-
 
 
         [HttpPatch]
@@ -107,7 +110,7 @@ namespace WebApi.Controllers
         }
 
 
-
+ 
         [Authorize(Roles = $"{TenantRoles.TenantAdmin},{PlatformRoles.PlatformAdmin}")]
         [HttpGet("{userId:guid}/details")]
         [EnableRateLimiting("GetResourcesPolicy")]
@@ -129,6 +132,7 @@ namespace WebApi.Controllers
         }
 
 
+        [RequireTenantAttribute]
         [Authorize(Roles = TenantRoles.TenantAdmin)]
         [HttpPost("extra-admin")]
         public async Task<ActionResult<Guid>> CreateExtraAdmin(

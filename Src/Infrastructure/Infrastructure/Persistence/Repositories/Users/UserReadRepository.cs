@@ -2,7 +2,8 @@
 using Application.ResponseDTO;
 using Domain.Enums;
 using Domain.ValueObjects;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories.Users
@@ -33,7 +34,8 @@ namespace Infrastructure.Persistence.Repositories.Users
                             user.LastName,
                             user.Email.Value,
                             membership.Role,
-                            tenant.Name);
+                            tenant.Name,
+                            tenant.Identifier);
 
             return await query.ToListAsync(ct);
 
@@ -78,7 +80,15 @@ namespace Infrastructure.Persistence.Repositories.Users
                     where membership.UserId == u.Id &&
                         (!tenantId.HasValue || membership.TenantId == tenantId.Value)
                     select tenant.Name)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+
+                    (from membership in _context.TenantMemberships
+                     join tenant in _context.Tenants
+                         on membership.TenantId equals tenant.Id
+                     where membership.UserId == u.Id &&
+                         (!tenantId.HasValue || membership.TenantId == tenantId.Value)
+                     select tenant.Identifier
+                            ).FirstOrDefault()
 
                 ))
                .ToListAsync(ct);
@@ -137,8 +147,18 @@ namespace Infrastructure.Persistence.Repositories.Users
                     select tenant.Name
                 ).FirstOrDefault(),
 
-                u.DeletedAt
+                u.DeletedAt,
+
+                (
+                    from membership in _context.TenantMemberships
+                    join tenant in _context.Tenants
+                        on membership.TenantId equals tenant.Id
+                    where membership.UserId == u.Id && 
+                    (!tenantId.HasValue || membership.TenantId == tenantId.Value)
+                    select tenant.Identifier
+                ).FirstOrDefault()
                 ))
+
                 .ToListAsync(ct);
 
 
@@ -189,7 +209,15 @@ namespace Infrastructure.Persistence.Repositories.Users
                         where membership.UserId == u.Id &&
                           (!tenantId.HasValue || membership.TenantId == tenantId.Value)
                         select tenant.Name)
-                        .FirstOrDefault()
+                        .FirstOrDefault(),
+
+                       (from membership in _context.TenantMemberships
+                        join tenant in _context.Tenants
+                            on membership.TenantId equals tenant.Id
+                        where membership.UserId == u.Id &&
+                            (!tenantId.HasValue || membership.TenantId == tenantId.Value)
+                            select tenant.Identifier
+                            ).FirstOrDefault()
                     ))
                     .FirstOrDefaultAsync(ct);
 

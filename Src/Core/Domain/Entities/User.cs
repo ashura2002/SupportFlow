@@ -103,6 +103,10 @@ namespace Domain.Entities
 
         public void SoftDelete()
         {
+            if (PlatformRole == PlatformRole.PlatformAdmin)
+                throw new DomainRuleViolationException("Invalid Action, Platform admin cannot be deleted.");
+
+
             if (DeletedAt.HasValue)
                 return;
 

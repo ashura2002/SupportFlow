@@ -10,13 +10,13 @@ namespace Application.Features.Tickets.Commands
     public sealed class ReopenTicketCommandHandler : IRequestHandler<ReopenTicketCommand, Result>
     {
         private readonly ICurrentUserService _currentUserService;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
         private readonly ITicketWriteRepository _ticketWriteRepository;
 
-        public ReopenTicketCommandHandler(ICurrentUserService currentUserService, IUnitOfWork unitOfWork, ITicketWriteRepository ticketWriteRepository)
+        public ReopenTicketCommandHandler(ICurrentUserService currentUserService, ITenantUnitOfWork tenantUnitOfWork, ITicketWriteRepository ticketWriteRepository)
         {
             _currentUserService = currentUserService;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
             _ticketWriteRepository = ticketWriteRepository;
         }
 
@@ -33,7 +33,7 @@ namespace Application.Features.Tickets.Commands
                 return Result.Failure(TicketErrors.NotTicketRequester);
 
             ticket.Reopen();
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
             return Result.Success();
         }
     }

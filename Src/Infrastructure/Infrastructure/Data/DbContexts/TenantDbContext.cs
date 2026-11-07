@@ -3,7 +3,7 @@ using Domain.Entities;
 using Infrastructure.Data.Configurations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Data
+namespace Infrastructure.Data.DbContexts
 {
     public sealed class TenantDbContext : DbContext
     {
@@ -20,6 +20,7 @@ namespace Infrastructure.Data
         public DbSet<TicketAttachmentReply> TicketAttachmentReply => Set<TicketAttachmentReply>();
         public DbSet<Notification> Notifications => Set<Notification>();
         public DbSet<TicketAuditEntry> TicketAuditEntries => Set<TicketAuditEntry>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

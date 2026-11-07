@@ -1,7 +1,7 @@
 ﻿using Application.Interfaces.Repositories;
 using Domain.Entities;
 using Domain.Enums;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories.Tenants

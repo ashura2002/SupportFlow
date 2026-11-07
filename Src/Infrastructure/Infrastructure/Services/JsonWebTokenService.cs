@@ -22,14 +22,16 @@ namespace Infrastructure.Services
         public string GenerateAccessToken(
             User user,
             Guid tenantId,
-            TenantRoles roles)
+            TenantRoles roles,
+            string schemaName)
         {
             List<Claim> claims = new()
             {
                 new(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new("tenant_id", tenantId.ToString()),
                 new(ClaimTypes.Role, roles.ToString()),
-                new(ClaimTypes.Email, user.Email.Value.ToString())
+                new(ClaimTypes.Email, user.Email.Value.ToString()),
+                new("schemaName", schemaName.ToString())
             };
 
             // create security key - get key from the app setting or user secrets

@@ -1,5 +1,5 @@
 using Application.Interfaces.Repositories;
-using Infrastructure.Data;
+using Infrastructure.Data.DbContexts;
 
 namespace Infrastructure.Persistence.Repositories.TicketAuditEntry;
 

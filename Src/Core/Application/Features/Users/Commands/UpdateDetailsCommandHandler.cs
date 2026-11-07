@@ -11,12 +11,12 @@ namespace Application.Features.Users.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
 
         public UpdateDetailsCommandHandler(
             ICurrentUserService currentUserService,
             IUserWriteRepository userWriteRepository,
-            IUnitOfWork unitOfWork)
+            ISharedUnitOfWork unitOfWork)
         {
             _currentUserService = currentUserService;
             _userWriteRepository = userWriteRepository;

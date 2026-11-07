@@ -11,13 +11,13 @@ namespace Application.Features.Users.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly IUserWriteRepository _userWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ISharedUnitOfWork _unitOfWork;
         private readonly IPasswordService _passwordService;
 
         public UpdatePasswordCommandHandler(
             ICurrentUserService currentUserService,
             IUserWriteRepository userWriteRepository,
-            IUnitOfWork unitOfWork,
+            ISharedUnitOfWork unitOfWork,
             IPasswordService passwordService)
         {
             _currentUserService = currentUserService;

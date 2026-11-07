@@ -11,15 +11,15 @@ namespace Application.Features.Notifications.Commands
     {
         private readonly ICurrentUserService _currentUserService;
         private readonly INotificationWriteRepository _notificationWriteRepository;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ITenantUnitOfWork _tenantUnitOfWork;
 
         public DeleteNotificationCommandHandler(ICurrentUserService currentUserService,
             INotificationWriteRepository notificationWriteRepository,
-            IUnitOfWork unitOfWork)
+            ITenantUnitOfWork tenantUnitOfWork)
         {
             _currentUserService = currentUserService;
             _notificationWriteRepository = notificationWriteRepository;
-            _unitOfWork = unitOfWork;
+            _tenantUnitOfWork = tenantUnitOfWork;
         }
 
 
@@ -36,7 +36,7 @@ namespace Application.Features.Notifications.Commands
                 return Result.Failure(NotificationErrors.NotificationNotFound);
 
             _notificationWriteRepository.Remove(notification);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _tenantUnitOfWork.SaveChangesAsync(cancellationToken);
 
             return Result.Success();
         }
