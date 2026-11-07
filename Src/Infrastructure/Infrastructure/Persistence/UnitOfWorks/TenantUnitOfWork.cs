@@ -1,19 +1,22 @@
-﻿using Application.Interfaces.Services;
+﻿
+
+using Application.Interfaces.Services;
 using Application.Interfaces.Uof;
 using Domain.Entities;
 using Domain.Events;
 using Infrastructure.Data.DbContexts;
+using Microsoft.EntityFrameworkCore;
 
-namespace Infrastructure.Persistence
+namespace Infrastructure.Persistence.UnitOfWorks
 {
-    internal class SharedUnitOfWork : ISharedUnitOfWork
+    public sealed class TenantUnitOfWork : ITenantUnitOfWork
     {
-        private readonly SharedDbContext _context;
+        public readonly TenantDbContext _tenantDbContext;
         private readonly IEventDispatcher _eventDispatcher;
 
-        public SharedUnitOfWork(SharedDbContext context, IEventDispatcher eventDispatcher)
+        public TenantUnitOfWork(TenantDbContext tenantDbContext, IEventDispatcher eventDispatcher)
         {
-            _context = context;
+            _tenantDbContext = tenantDbContext;
             _eventDispatcher = eventDispatcher;
         }
 
@@ -31,14 +34,14 @@ namespace Infrastructure.Persistence
                 await _eventDispatcher.DispatchAsync(domainEvents, ct);
             }
 
-            await _context.SaveChangesAsync(ct);
+            await _tenantDbContext.SaveChangesAsync(ct);
         }
 
 
 
         private List<IDomainEvent> CollectAndClearEvents()
         {
-            var aggregates = _context.ChangeTracker
+            var aggregates = _tenantDbContext.ChangeTracker
                 .Entries<Aggregate>()
                 .Select(entry => entry.Entity)
                 .Where(entry => entry.DomainEvents.Count > 0)

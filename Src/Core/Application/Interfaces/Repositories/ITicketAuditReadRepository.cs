@@ -8,6 +8,5 @@ public interface ITicketAuditReadRepository
 {
     Task<IReadOnlyList<TicketAuditResponse>> GetTicketAuditByIdAsync(
         Guid  ticketId,
-        Guid tenantId,
         CancellationToken ct);
 }
