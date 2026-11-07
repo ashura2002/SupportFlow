@@ -77,7 +77,7 @@ namespace Application.Features.Auth.Command
                 user,
                 tenant.Id,
                 membership.TenantRoles,
-                tenant.SchemaName);
+                tenant.Identifier);
 
             return Result<AuthResponse>.Success(
                 new AuthResponse(accessToken));

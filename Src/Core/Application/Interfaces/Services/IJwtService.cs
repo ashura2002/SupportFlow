@@ -9,7 +9,7 @@ namespace Application.Interfaces.Services
             User user,
             Guid tenantId,
             TenantRoles roles,
-            string schemaName);
+            string schemaIdentifier);
 
         string GeneratePlatformAccessToken(User user);
     }

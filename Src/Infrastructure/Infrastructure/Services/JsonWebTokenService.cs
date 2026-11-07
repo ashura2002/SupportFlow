@@ -31,7 +31,7 @@ namespace Infrastructure.Services
                 new("tenant_id", tenantId.ToString()),
                 new(ClaimTypes.Role, roles.ToString()),
                 new(ClaimTypes.Email, user.Email.Value.ToString()),
-                new("schemaName", schemaName.ToString())
+                new("schemaIdentifier", schemaName.ToString())
             };
 
             // create security key - get key from the app setting or user secrets
