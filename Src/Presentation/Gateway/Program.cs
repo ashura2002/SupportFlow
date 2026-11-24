@@ -8,6 +8,13 @@ builder.Services
     .LoadFromConfig(
         builder.Configuration.GetSection("ReverseProxy"));
 
+builder.Services.AddCors(opt => opt.AddPolicy("AllowAll", policy =>
+{
+    policy.AllowAnyOrigin()
+         .AllowAnyHeader()
+         .AllowAnyMethod();
+}));
+
 
 builder.Services.AddRateLimiter(options =>
 {
@@ -48,7 +55,7 @@ builder.Services.AddRateLimiter(options =>
 });
 
 var app = builder.Build();
-
+app.UseCors("AllowAll");
 app.UseRateLimiter();
 app.MapReverseProxy();
 
